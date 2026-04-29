@@ -446,6 +446,179 @@
     .header h1 { font-size: 24px; }
     .lang-btn { padding: 6px 10px; font-size: 11px; }
   }
+
+  /* ===================== Module tabs ===================== */
+  .modules {
+    display: flex;
+    gap: 6px;
+    padding: 4px;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    margin-bottom: 28px;
+  }
+  .mod-btn {
+    flex: 1;
+    background: none;
+    border: none;
+    color: var(--text2);
+    font-family: 'Outfit', sans-serif;
+    font-size: 14px;
+    font-weight: 500;
+    padding: 10px 14px;
+    cursor: pointer;
+    border-radius: 8px;
+    transition: all .2s;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    letter-spacing: -0.01em;
+  }
+  .mod-btn:hover { color: var(--text); background: var(--surface2); }
+  .mod-btn.active {
+    color: var(--text);
+    background: linear-gradient(135deg, rgba(59,130,246,0.18), rgba(139,92,246,0.18));
+    box-shadow: inset 0 0 0 1px rgba(139,92,246,0.35);
+  }
+  .module { display: block; }
+  .module.hidden { display: none; }
+
+  /* ===================== Image module ===================== */
+  .img-instructions {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-lg);
+    padding: 16px 18px;
+    margin-bottom: 18px;
+  }
+  .img-instructions-label {
+    display: flex; align-items: center; gap: 8px;
+    font-size: 13px; font-weight: 500;
+    color: var(--text2);
+    margin-bottom: 10px;
+  }
+  .img-instructions-label .dot {
+    width: 6px; height: 6px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, #8b5cf6, var(--accent));
+  }
+  .img-instructions textarea {
+    width: 100%;
+    min-height: 64px;
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    color: var(--text);
+    font-family: 'Outfit', sans-serif;
+    font-size: 13px;
+    line-height: 1.55;
+    padding: 11px 12px;
+    resize: vertical;
+    transition: border-color .15s;
+  }
+  .img-instructions textarea:focus {
+    outline: none;
+    border-color: var(--border-hover);
+  }
+  .img-instructions-hint {
+    margin-top: 8px;
+    font-size: 11.5px;
+    color: var(--text3);
+    line-height: 1.5;
+  }
+  .img-parsed {
+    margin-top: 10px;
+    display: flex; flex-wrap: wrap; gap: 6px;
+  }
+  .img-parsed-chip {
+    font-size: 11px;
+    padding: 4px 10px;
+    border-radius: 999px;
+    background: var(--accent-dim);
+    color: var(--accent);
+    border: 1px solid var(--accent-mid);
+    font-weight: 500;
+  }
+  .img-quality-row {
+    display: flex; align-items: center; gap: 10px;
+  }
+  .img-quality-row input[type=range] {
+    flex: 1;
+    accent-color: var(--accent);
+  }
+  .img-quality-val {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 12px;
+    color: var(--text2);
+    min-width: 28px;
+    text-align: right;
+  }
+  .aspect-row {
+    display: flex; flex-wrap: wrap; gap: 6px;
+  }
+  .aspect-btn {
+    flex: 1;
+    min-width: 56px;
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    color: var(--text2);
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11.5px;
+    padding: 6px 8px;
+    border-radius: 6px;
+    cursor: pointer;
+    transition: all .15s;
+  }
+  .aspect-btn:hover { color: var(--text); border-color: var(--border-hover); }
+  .aspect-btn.active {
+    color: var(--accent);
+    background: var(--accent-dim);
+    border-color: var(--accent-mid);
+  }
+  .img-result {
+    margin-top: 24px;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-lg);
+    padding: 18px;
+    display: none;
+  }
+  .img-result.active { display: block; }
+  .img-compare {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 14px;
+    margin-bottom: 16px;
+  }
+  .img-pane { text-align: center; }
+  .img-pane-label {
+    font-size: 11px; font-weight: 600;
+    letter-spacing: 0.08em;
+    color: var(--text3);
+    text-transform: uppercase;
+    margin-bottom: 8px;
+  }
+  .img-pane img {
+    max-width: 100%;
+    max-height: 260px;
+    border-radius: 8px;
+    background: var(--surface2);
+    border: 1px solid var(--border);
+  }
+  .img-pane-meta {
+    margin-top: 6px;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    color: var(--text2);
+  }
+  .img-actions {
+    display: flex; gap: 10px;
+  }
+  .img-actions .process-btn { flex: 1; }
+  @media (max-width: 520px) {
+    .img-compare { grid-template-columns: 1fr; }
+  }
 </style>
 </head>
 <body>
@@ -463,6 +636,19 @@
       <button class="lang-btn" onclick="setLang('pt')">PT-BR</button>
     </div>
   </div>
+
+  <!-- Module tabs -->
+  <div class="modules">
+    <button class="mod-btn active" data-mod="audio" onclick="setModule('audio')">
+      <span>🎵</span><span id="t-mod-audio">音频切割</span>
+    </button>
+    <button class="mod-btn" data-mod="image" onclick="setModule('image')">
+      <span>🖼</span><span id="t-mod-image">图片处理</span>
+    </button>
+  </div>
+
+  <!-- ===================== Audio module ===================== -->
+  <div class="module" id="module-audio">
 
   <div class="header">
     <h1 id="t-title">MP3 / WAV 音频自动切割</h1>
@@ -529,6 +715,92 @@
     </div>
     <div class="res-list" id="resultList"></div>
   </div>
+
+  </div><!-- /module-audio -->
+
+  <!-- ===================== Image module ===================== -->
+  <div class="module hidden" id="module-image">
+
+    <div class="header">
+      <h1 id="t-img-title">图片智能处理</h1>
+      <p id="t-img-subtitle">用一段话描述要求，自动裁剪 / 缩放 / 转格式 / 压缩；或手动调参。纯本地处理，文件不会上传。</p>
+    </div>
+
+    <div class="img-instructions">
+      <div class="img-instructions-label">
+        <span class="dot"></span>
+        <span id="t-img-instr-label">用一段话描述你想要的</span>
+      </div>
+      <textarea id="imgInstructions" placeholder="例如：裁剪成正方形，1000x1000，导出 JPG，保持彩色"></textarea>
+      <div class="img-instructions-hint" id="t-img-instr-hint">
+        支持识别：正方形 / 1:1 / 4:5 / 16:9 / 9:16 等比例 · 1000px 等具体尺寸 · JPG / PNG / WebP 格式 · 高质量 / 压缩
+      </div>
+      <div class="img-parsed" id="imgParsed"></div>
+    </div>
+
+    <div class="config-grid">
+      <div class="config-card full">
+        <div class="config-label"><span class="dot"></span><span id="t-img-aspect">裁剪比例</span></div>
+        <div class="aspect-row" id="aspectRow">
+          <button class="aspect-btn active" data-aspect="original" id="t-asp-original">原始</button>
+          <button class="aspect-btn" data-aspect="1:1">1:1</button>
+          <button class="aspect-btn" data-aspect="4:5">4:5</button>
+          <button class="aspect-btn" data-aspect="3:2">3:2</button>
+          <button class="aspect-btn" data-aspect="16:9">16:9</button>
+          <button class="aspect-btn" data-aspect="9:16">9:16</button>
+        </div>
+      </div>
+      <div class="config-card">
+        <div class="config-label"><span class="dot"></span><span id="t-img-format">输出格式</span></div>
+        <select class="format-select" id="imgFormat">
+          <option value="image/jpeg">JPG</option>
+          <option value="image/png">PNG</option>
+          <option value="image/webp">WebP</option>
+        </select>
+      </div>
+      <div class="config-card">
+        <div class="config-label"><span class="dot"></span><span id="t-img-maxdim">最大边长 (px)</span></div>
+        <div class="input-row">
+          <input type="number" class="num-input" id="imgMaxDim" value="1000" min="100" max="8000" step="100" />
+          <span class="input-unit">px</span>
+        </div>
+      </div>
+      <div class="config-card full">
+        <div class="config-label"><span class="dot"></span><span id="t-img-quality">质量</span></div>
+        <div class="img-quality-row">
+          <input type="range" id="imgQuality" min="40" max="100" value="88" />
+          <span class="img-quality-val" id="imgQualityVal">88</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="dropzone" id="imgDropzone">
+      <div class="dz-icon">🖼</div>
+      <div class="dz-main" id="t-img-dz-main">拖入图片，或点击选择</div>
+      <div class="dz-sub"><i class="shield">🔒</i><span id="t-img-dz-sub">支持 JPG / PNG / WebP / HEIC · 纯本地处理，不上传任何数据</span></div>
+      <input type="file" id="imgInput" accept="image/*" />
+    </div>
+
+    <div class="img-result" id="imgResult">
+      <div class="img-compare">
+        <div class="img-pane">
+          <div class="img-pane-label" id="t-img-before">原图</div>
+          <img id="imgBefore" />
+          <div class="img-pane-meta" id="imgBeforeMeta"></div>
+        </div>
+        <div class="img-pane">
+          <div class="img-pane-label" id="t-img-after">处理后</div>
+          <img id="imgAfter" />
+          <div class="img-pane-meta" id="imgAfterMeta"></div>
+        </div>
+      </div>
+      <div class="img-actions">
+        <button class="process-btn" id="imgReprocessBtn"><span id="t-img-reprocess">重新处理</span></button>
+        <button class="process-btn" id="imgDownloadBtn"><span id="t-img-download">下载</span></button>
+      </div>
+    </div>
+
+  </div><!-- /module-image -->
 </div>
 
 <div class="toast" id="toast"></div>
@@ -560,6 +832,30 @@ const I18N = {
     loadingEnc: '加载编码器...',
     loadingMp3Enc: '加载 MP3 编码器...',
     completed: '已完成 ✓',
+    modAudio: '音频切割',
+    modImage: '图片处理',
+    imgTitle: '图片智能处理',
+    imgSubtitle: '用一段话描述要求，自动裁剪 / 缩放 / 转格式 / 压缩；或手动调参。纯本地处理，文件不会上传。',
+    imgInstrLabel: '用一段话描述你想要的',
+    imgInstrPlaceholder: '例如：裁剪成正方形，1000x1000，导出 JPG，保持彩色',
+    imgInstrHint: '支持识别：正方形 / 1:1 / 4:5 / 16:9 / 9:16 等比例 · 1000px 等具体尺寸 · JPG / PNG / WebP 格式 · 高质量 / 压缩',
+    imgAspect: '裁剪比例',
+    imgAspectOriginal: '原始',
+    imgFormat: '输出格式',
+    imgMaxDim: '最大边长 (px)',
+    imgQuality: '质量',
+    imgDzMain: '拖入图片，或点击选择',
+    imgDzSub: '支持 JPG / PNG / WebP / HEIC · 纯本地处理，不上传任何数据',
+    imgBefore: '原图',
+    imgAfter: '处理后',
+    imgReprocess: '重新处理',
+    imgDownload: '下载',
+    imgChipFormat: (f) => `格式: ${f}`,
+    imgChipAspect: (a) => `比例: ${a}`,
+    imgChipDim: (d) => `最大: ${d}px`,
+    imgChipQuality: (q) => `质量: ${q}`,
+    imgErrLoad: '图片加载失败',
+    imgDone: (sizeBefore, sizeAfter) => `处理完成：${sizeBefore} → ${sizeAfter}`,
   },
   en: {
     title: 'MP3 / WAV Audio Auto-Splitter',
@@ -585,6 +881,30 @@ const I18N = {
     loadingEnc: 'Loading encoder...',
     loadingMp3Enc: 'Loading MP3 encoder...',
     completed: 'Completed ✓',
+    modAudio: 'Audio Splitter',
+    modImage: 'Image Processor',
+    imgTitle: 'Smart Image Processor',
+    imgSubtitle: 'Describe what you want in plain language — auto crop / resize / convert / compress. Or tweak manually. Fully local, no upload.',
+    imgInstrLabel: 'Describe in plain English',
+    imgInstrPlaceholder: 'e.g. crop to square, 1000x1000, export as JPG, keep color',
+    imgInstrHint: 'Understands: square / 1:1 / 4:5 / 16:9 / 9:16 ratios · pixel dimensions like 1000px · JPG / PNG / WebP formats · high quality / compress',
+    imgAspect: 'Crop ratio',
+    imgAspectOriginal: 'Original',
+    imgFormat: 'Output format',
+    imgMaxDim: 'Max dimension (px)',
+    imgQuality: 'Quality',
+    imgDzMain: 'Drag image here, or click to browse',
+    imgDzSub: 'Supports JPG / PNG / WebP / HEIC · Fully local, no data uploaded',
+    imgBefore: 'Original',
+    imgAfter: 'Processed',
+    imgReprocess: 'Reprocess',
+    imgDownload: 'Download',
+    imgChipFormat: (f) => `Format: ${f}`,
+    imgChipAspect: (a) => `Aspect: ${a}`,
+    imgChipDim: (d) => `Max: ${d}px`,
+    imgChipQuality: (q) => `Quality: ${q}`,
+    imgErrLoad: 'Failed to load image',
+    imgDone: (sizeBefore, sizeAfter) => `Done: ${sizeBefore} → ${sizeAfter}`,
   },
   pt: {
     title: 'Divisor Automático de MP3 / WAV',
@@ -610,6 +930,30 @@ const I18N = {
     loadingEnc: 'Carregando codificador...',
     loadingMp3Enc: 'Carregando codificador MP3...',
     completed: 'Concluído ✓',
+    modAudio: 'Divisor de Áudio',
+    modImage: 'Processador de Imagem',
+    imgTitle: 'Processador Inteligente de Imagem',
+    imgSubtitle: 'Descreva em linguagem natural — corta / redimensiona / converte / comprime automaticamente. Ou ajuste manualmente. 100% local, sem upload.',
+    imgInstrLabel: 'Descreva em linguagem natural',
+    imgInstrPlaceholder: 'Ex: cortar quadrado, 1000x1000, exportar JPG, manter colorido',
+    imgInstrHint: 'Reconhece: quadrado / 1:1 / 4:5 / 16:9 / 9:16 · dimensões em px (ex: 1000px) · JPG / PNG / WebP · alta qualidade / comprimir',
+    imgAspect: 'Proporção',
+    imgAspectOriginal: 'Original',
+    imgFormat: 'Formato',
+    imgMaxDim: 'Lado máximo (px)',
+    imgQuality: 'Qualidade',
+    imgDzMain: 'Arraste a imagem aqui ou clique para selecionar',
+    imgDzSub: 'Suporta JPG / PNG / WebP / HEIC · 100% local, sem upload',
+    imgBefore: 'Original',
+    imgAfter: 'Processada',
+    imgReprocess: 'Reprocessar',
+    imgDownload: 'Baixar',
+    imgChipFormat: (f) => `Formato: ${f}`,
+    imgChipAspect: (a) => `Proporção: ${a}`,
+    imgChipDim: (d) => `Máx: ${d}px`,
+    imgChipQuality: (q) => `Qualidade: ${q}`,
+    imgErrLoad: 'Falha ao carregar imagem',
+    imgDone: (sizeBefore, sizeAfter) => `Pronto: ${sizeBefore} → ${sizeAfter}`,
   }
 };
 
@@ -626,6 +970,29 @@ function t(key) { return I18N[currentLang][key]; }
 
 function applyLang() {
   const L = I18N[currentLang];
+  // Module tabs
+  document.getElementById('t-mod-audio').textContent = L.modAudio;
+  document.getElementById('t-mod-image').textContent = L.modImage;
+  // Image module labels
+  document.getElementById('t-img-title').textContent = L.imgTitle;
+  document.getElementById('t-img-subtitle').textContent = L.imgSubtitle;
+  document.getElementById('t-img-instr-label').textContent = L.imgInstrLabel;
+  document.getElementById('imgInstructions').placeholder = L.imgInstrPlaceholder;
+  document.getElementById('t-img-instr-hint').textContent = L.imgInstrHint;
+  document.getElementById('t-img-aspect').textContent = L.imgAspect;
+  document.getElementById('t-asp-original').textContent = L.imgAspectOriginal;
+  document.getElementById('t-img-format').textContent = L.imgFormat;
+  document.getElementById('t-img-maxdim').textContent = L.imgMaxDim;
+  document.getElementById('t-img-quality').textContent = L.imgQuality;
+  document.getElementById('t-img-dz-main').textContent = L.imgDzMain;
+  document.getElementById('t-img-dz-sub').textContent = L.imgDzSub;
+  document.getElementById('t-img-before').textContent = L.imgBefore;
+  document.getElementById('t-img-after').textContent = L.imgAfter;
+  document.getElementById('t-img-reprocess').textContent = L.imgReprocess;
+  document.getElementById('t-img-download').textContent = L.imgDownload;
+  // Refresh parsed chips if showing
+  refreshParsedChips();
+  // Audio module labels (existing)
   document.getElementById('t-title').textContent = L.title;
   document.getElementById('t-subtitle').textContent = L.subtitle;
   document.getElementById('t-maxdur').textContent = L.maxdur;
@@ -1038,6 +1405,246 @@ function showToast(msg) {
   el.classList.add('show');
   setTimeout(() => el.classList.remove('show'), 3000);
 }
+
+// ===================== Module switcher =====================
+function setModule(mod) {
+  document.querySelectorAll('.mod-btn').forEach(b => {
+    b.classList.toggle('active', b.dataset.mod === mod);
+  });
+  document.getElementById('module-audio').classList.toggle('hidden', mod !== 'audio');
+  document.getElementById('module-image').classList.toggle('hidden', mod !== 'image');
+}
+
+// ===================== Image module =====================
+const imgDropzone = document.getElementById('imgDropzone');
+const imgInput = document.getElementById('imgInput');
+const imgInstructions = document.getElementById('imgInstructions');
+const imgFormatSel = document.getElementById('imgFormat');
+const imgMaxDimInput = document.getElementById('imgMaxDim');
+const imgQualityInput = document.getElementById('imgQuality');
+const imgQualityVal = document.getElementById('imgQualityVal');
+const imgResult = document.getElementById('imgResult');
+const imgBeforeEl = document.getElementById('imgBefore');
+const imgAfterEl = document.getElementById('imgAfter');
+const imgBeforeMeta = document.getElementById('imgBeforeMeta');
+const imgAfterMeta = document.getElementById('imgAfterMeta');
+const imgReprocessBtn = document.getElementById('imgReprocessBtn');
+const imgDownloadBtn = document.getElementById('imgDownloadBtn');
+const imgParsedEl = document.getElementById('imgParsed');
+const aspectRow = document.getElementById('aspectRow');
+
+let currentImageFile = null;
+let processedBlob = null;
+let processedExt = 'jpg';
+let currentAspect = 'original';
+
+// Drag & drop
+imgDropzone.addEventListener('dragover', e => { e.preventDefault(); imgDropzone.classList.add('dragover'); });
+imgDropzone.addEventListener('dragleave', () => imgDropzone.classList.remove('dragover'));
+imgDropzone.addEventListener('drop', e => {
+  e.preventDefault();
+  imgDropzone.classList.remove('dragover');
+  if (e.dataTransfer.files[0]) handleImageFile(e.dataTransfer.files[0]);
+});
+imgInput.addEventListener('change', e => {
+  if (e.target.files[0]) handleImageFile(e.target.files[0]);
+});
+
+// Aspect ratio buttons
+aspectRow.querySelectorAll('.aspect-btn').forEach(btn => {
+  btn.addEventListener('click', () => {
+    aspectRow.querySelectorAll('.aspect-btn').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+    currentAspect = btn.dataset.aspect;
+    if (currentImageFile) processCurrentImage();
+  });
+});
+
+// Quality slider
+imgQualityInput.addEventListener('input', () => {
+  imgQualityVal.textContent = imgQualityInput.value;
+});
+imgQualityInput.addEventListener('change', () => { if (currentImageFile) processCurrentImage(); });
+imgFormatSel.addEventListener('change', () => { if (currentImageFile) processCurrentImage(); });
+imgMaxDimInput.addEventListener('change', () => { if (currentImageFile) processCurrentImage(); });
+
+// Smart-paste parser (debounced so we don't reprocess on every keystroke)
+let imgInstrTimer = null;
+imgInstructions.addEventListener('input', () => {
+  applyParsedInstructions(parseInstructions(imgInstructions.value));
+  clearTimeout(imgInstrTimer);
+  imgInstrTimer = setTimeout(() => {
+    if (currentImageFile) processCurrentImage();
+  }, 400);
+});
+
+function parseInstructions(text) {
+  if (!text || !text.trim()) return null;
+  const t = text.toLowerCase();
+  const out = {};
+
+  // Format
+  if (/jpe?g|\.jpg/.test(t)) out.format = 'image/jpeg';
+  else if (/webp/.test(t)) out.format = 'image/webp';
+  else if (/png/.test(t)) out.format = 'image/png';
+
+  // Aspect
+  if (/正方形|square|1\s*[:×x]\s*1|等比例的正方/.test(t)) out.aspect = '1:1';
+  else if (/4\s*[:×x]\s*5/.test(t)) out.aspect = '4:5';
+  else if (/3\s*[:×x]\s*2/.test(t)) out.aspect = '3:2';
+  else if (/16\s*[:×x]\s*9/.test(t)) out.aspect = '16:9';
+  else if (/9\s*[:×x]\s*16/.test(t)) out.aspect = '9:16';
+
+  // Dimension — accept e.g. "1000x1000", "1000px", "1000 像素"
+  const dimMatches = text.match(/(\d{3,4})\s*(?:px|像素|x\s*\d{3,4}|×\s*\d{3,4})?/gi) || [];
+  const dims = dimMatches
+    .map(s => parseInt(s.match(/\d+/)[0], 10))
+    .filter(n => n >= 200 && n <= 8000);
+  if (dims.length) out.maxDim = Math.max(...dims);
+
+  // Quality
+  if (/high.*quality|highest|高质量|高画质|max.*quality|无损|lossless/.test(t)) out.quality = 95;
+  else if (/compress|压缩|小一?点|smaller|reduce|small file|轻量|更小/.test(t)) out.quality = 70;
+
+  return out;
+}
+
+function applyParsedInstructions(parsed) {
+  if (!parsed) {
+    imgParsedEl.innerHTML = '';
+    return;
+  }
+  if (parsed.format) imgFormatSel.value = parsed.format;
+  if (parsed.aspect) {
+    currentAspect = parsed.aspect;
+    aspectRow.querySelectorAll('.aspect-btn').forEach(b => {
+      b.classList.toggle('active', b.dataset.aspect === parsed.aspect);
+    });
+  }
+  if (parsed.maxDim) imgMaxDimInput.value = parsed.maxDim;
+  if (parsed.quality) {
+    imgQualityInput.value = parsed.quality;
+    imgQualityVal.textContent = parsed.quality;
+  }
+  refreshParsedChips();
+}
+
+function refreshParsedChips() {
+  const L = I18N[currentLang];
+  const text = imgInstructions ? imgInstructions.value : '';
+  const parsed = parseInstructions(text);
+  if (!parsed || Object.keys(parsed).length === 0) {
+    imgParsedEl.innerHTML = '';
+    return;
+  }
+  const chips = [];
+  if (parsed.format) {
+    const f = parsed.format.split('/')[1].toUpperCase();
+    chips.push(L.imgChipFormat(f));
+  }
+  if (parsed.aspect) chips.push(L.imgChipAspect(parsed.aspect));
+  if (parsed.maxDim) chips.push(L.imgChipDim(parsed.maxDim));
+  if (parsed.quality) chips.push(L.imgChipQuality(parsed.quality));
+  imgParsedEl.innerHTML = chips.map(c => `<span class="img-parsed-chip">${c}</span>`).join('');
+}
+
+function loadImageElement(file) {
+  return new Promise((resolve, reject) => {
+    const url = URL.createObjectURL(file);
+    const img = new Image();
+    img.onload = () => { URL.revokeObjectURL(url); resolve(img); };
+    img.onerror = () => { URL.revokeObjectURL(url); reject(new Error('image load failed')); };
+    img.src = url;
+  });
+}
+
+async function handleImageFile(file) {
+  if (!file.type.startsWith('image/')) {
+    showToast(I18N[currentLang].imgErrLoad);
+    return;
+  }
+  currentImageFile = file;
+  // Show original preview
+  try {
+    const img = await loadImageElement(file);
+    imgBeforeEl.src = img.src; // already loaded — recreate URL for preview
+    const previewUrl = URL.createObjectURL(file);
+    imgBeforeEl.src = previewUrl;
+    imgBeforeMeta.textContent = `${img.naturalWidth}×${img.naturalHeight} · ${formatSize(file.size)}`;
+  } catch (e) {
+    showToast(I18N[currentLang].imgErrLoad);
+    return;
+  }
+  imgResult.classList.add('active');
+  await processCurrentImage();
+}
+
+async function processCurrentImage() {
+  if (!currentImageFile) return;
+  const opts = {
+    format: imgFormatSel.value,
+    aspect: currentAspect,
+    maxDim: parseInt(imgMaxDimInput.value, 10) || null,
+    quality: parseInt(imgQualityInput.value, 10) / 100,
+  };
+  try {
+    const img = await loadImageElement(currentImageFile);
+    let { naturalWidth: w, naturalHeight: h } = img;
+    let sx = 0, sy = 0, sw = w, sh = h;
+    // Aspect crop (center)
+    if (opts.aspect && opts.aspect !== 'original') {
+      const [a, b] = opts.aspect.split(':').map(Number);
+      const targetRatio = a / b;
+      const sourceRatio = w / h;
+      if (sourceRatio > targetRatio) {
+        sw = Math.round(h * targetRatio); sx = Math.round((w - sw) / 2); sh = h;
+      } else {
+        sh = Math.round(w / targetRatio); sy = Math.round((h - sh) / 2); sw = w;
+      }
+    }
+    // Resize
+    let dw = sw, dh = sh;
+    if (opts.maxDim) {
+      const scale = Math.min(opts.maxDim / sw, opts.maxDim / sh, 1);
+      dw = Math.round(sw * scale);
+      dh = Math.round(sh * scale);
+    }
+    const canvas = document.createElement('canvas');
+    canvas.width = dw; canvas.height = dh;
+    const ctx = canvas.getContext('2d');
+    ctx.imageSmoothingEnabled = true;
+    ctx.imageSmoothingQuality = 'high';
+    // PNG fills transparent by default; JPG needs white bg
+    if (opts.format === 'image/jpeg') {
+      ctx.fillStyle = '#ffffff';
+      ctx.fillRect(0, 0, dw, dh);
+    }
+    ctx.drawImage(img, sx, sy, sw, sh, 0, 0, dw, dh);
+    const blob = await new Promise(resolve =>
+      canvas.toBlob(resolve, opts.format, opts.quality)
+    );
+    processedBlob = blob;
+    processedExt = opts.format.split('/')[1].replace('jpeg', 'jpg');
+    if (imgAfterEl.src) URL.revokeObjectURL(imgAfterEl.src);
+    imgAfterEl.src = URL.createObjectURL(blob);
+    imgAfterMeta.textContent = `${dw}×${dh} · ${formatSize(blob.size)}`;
+  } catch (e) {
+    console.error(e);
+    showToast(I18N[currentLang].imgErrLoad);
+  }
+}
+
+imgReprocessBtn.addEventListener('click', () => processCurrentImage());
+imgDownloadBtn.addEventListener('click', () => {
+  if (!processedBlob || !currentImageFile) return;
+  const baseName = currentImageFile.name.replace(/\.[^.]+$/, '');
+  const url = URL.createObjectURL(processedBlob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = `${baseName}_processed.${processedExt}`;
+  a.click();
+  URL.revokeObjectURL(url);
+});
 
 // Init
 updateNamePreview();
