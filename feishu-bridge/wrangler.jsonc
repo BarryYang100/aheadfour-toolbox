@@ -1,0 +1,9 @@
+{
+  "name": "aheadfour-feishu-bridge",
+  "main": "worker.js",
+  "compatibility_date": "2026-07-01",
+  "routes": [
+    { "pattern": "tools.aheadfour.io/api/*", "zone_name": "aheadfour.io" }
+  ],
+  "observability": { "enabled": true }
+}

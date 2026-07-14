@@ -698,6 +698,30 @@
     flex-wrap: wrap;
   }
   .srt-actions .dl-all-btn { flex: 1; min-width: 120px; justify-content: center; display: flex; }
+  .srt-feishu {
+    margin-top: 16px;
+    padding-top: 16px;
+    border-top: 1px solid var(--border);
+  }
+  .srt-feishu-row {
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+    margin-top: 10px;
+  }
+  .srt-feishu-row input {
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    color: var(--text);
+    font-family: 'Outfit', sans-serif;
+    font-size: 12.5px;
+    padding: 9px 12px;
+    transition: border-color .15s;
+  }
+  .srt-feishu-row input:focus { outline: none; border-color: var(--border-hover); }
+  .srt-feishu-url { flex: 1; min-width: 220px; }
+  .srt-feishu-key { width: 130px; }
 </style>
 </head>
 <body>
@@ -959,7 +983,17 @@
       <div class="srt-actions">
         <button class="dl-all-btn" id="srtDlSrtBtn"><span id="t-srt-dlsrt">下载 .srt</span></button>
         <button class="dl-all-btn" id="srtDlTxtBtn"><span id="t-srt-dltxt">下载 .txt</span></button>
+        <button class="dl-all-btn" id="srtDlXlsxBtn"><span id="t-srt-dlxlsx">下载 Excel</span></button>
         <button class="dl-all-btn" id="srtCopyBtn"><span id="t-srt-copy">复制全文</span></button>
+      </div>
+      <div class="srt-feishu">
+        <div class="config-label"><span class="dot"></span><span id="t-srt-feishu-label">写入飞书表格</span></div>
+        <div class="srt-feishu-row">
+          <input type="text" class="srt-feishu-url" id="srtFeishuUrl" placeholder="粘贴飞书表格链接（wiki 或 sheets 链接，带 ?sheet= 更精确）" />
+          <input type="password" class="srt-feishu-key" id="srtFeishuKey" placeholder="团队密钥" />
+          <button class="dl-all-btn" id="srtFeishuBtn"><span id="t-srt-feishu-btn">写入</span></button>
+        </div>
+        <div class="srt-note" id="t-srt-feishu-note">把「时间戳 + 原文」两列追加到目标表格已有内容之后；首次使用输入一次团队密钥即可，浏览器会记住。</div>
       </div>
     </div>
 
@@ -1046,6 +1080,19 @@ const I18N = {
     srtErrDecode: '无法解码该文件的音轨，请转成 MP4 / MP3 / WAV 后重试',
     srtErr: (m) => '转写出错: ' + m,
     srtToastDone: (n) => `转写完成，共 ${n} 条字幕`,
+    srtFeishuLabel: '写入飞书表格',
+    srtFeishuUrlPh: '粘贴飞书表格链接（wiki 或 sheets 链接，带 ?sheet= 更精确）',
+    srtFeishuKeyPh: '团队密钥',
+    srtFeishuBtn: '写入',
+    srtFeishuNote: '把「时间戳 + 原文」两列追加到目标表格已有内容之后；首次使用输入一次团队密钥即可，浏览器会记住。',
+    srtFeishuWriting: '写入中...',
+    srtFeishuOk: (n) => `已写入 ${n} 行到飞书表格`,
+    srtFeishuErr: (m) => '写入失败: ' + m,
+    srtFeishuNeedUrl: '请粘贴有效的飞书表格链接',
+    srtFeishuNeedKey: '请输入团队密钥',
+    srtDlXlsx: '下载 Excel',
+    srtColTs: '时间戳',
+    srtColText: '原文',
   },
   en: {
     title: 'MP3 / WAV Audio Auto-Splitter',
@@ -1122,6 +1169,19 @@ const I18N = {
     srtErrDecode: 'Could not decode the audio track. Please convert to MP4 / MP3 / WAV and retry',
     srtErr: (m) => 'Transcription error: ' + m,
     srtToastDone: (n) => `Done! ${n} subtitle segments`,
+    srtFeishuLabel: 'Write to Feishu Sheet',
+    srtFeishuUrlPh: 'Paste Feishu sheet link (wiki or sheets URL, add ?sheet= to target a tab)',
+    srtFeishuKeyPh: 'Team key',
+    srtFeishuBtn: 'Write',
+    srtFeishuNote: 'Appends two columns (timestamp + text) after existing rows in the target sheet. Enter the team key once; your browser remembers it.',
+    srtFeishuWriting: 'Writing...',
+    srtFeishuOk: (n) => `Wrote ${n} rows to the Feishu sheet`,
+    srtFeishuErr: (m) => 'Write failed: ' + m,
+    srtFeishuNeedUrl: 'Please paste a valid Feishu sheet link',
+    srtFeishuNeedKey: 'Please enter the team key',
+    srtDlXlsx: 'Download Excel',
+    srtColTs: 'Timestamp',
+    srtColText: 'Text',
   },
   pt: {
     title: 'Divisor Automático de MP3 / WAV',
@@ -1198,6 +1258,19 @@ const I18N = {
     srtErrDecode: 'Não foi possível decodificar a faixa de áudio. Converta para MP4 / MP3 / WAV e tente novamente',
     srtErr: (m) => 'Erro na transcrição: ' + m,
     srtToastDone: (n) => `Concluído! ${n} legendas geradas`,
+    srtFeishuLabel: 'Gravar na Planilha Feishu',
+    srtFeishuUrlPh: 'Cole o link da planilha Feishu (URL wiki ou sheets, use ?sheet= para uma aba específica)',
+    srtFeishuKeyPh: 'Chave da equipe',
+    srtFeishuBtn: 'Gravar',
+    srtFeishuNote: 'Adiciona duas colunas (timestamp + texto) após as linhas existentes na planilha. Digite a chave da equipe uma vez; o navegador a memoriza.',
+    srtFeishuWriting: 'Gravando...',
+    srtFeishuOk: (n) => `${n} linhas gravadas na planilha Feishu`,
+    srtFeishuErr: (m) => 'Falha ao gravar: ' + m,
+    srtFeishuNeedUrl: 'Cole um link válido de planilha Feishu',
+    srtFeishuNeedKey: 'Digite a chave da equipe',
+    srtDlXlsx: 'Baixar Excel',
+    srtColTs: 'Timestamp',
+    srtColText: 'Texto',
   },
   th: {
     title: 'ตัดไฟล์เสียง MP3 / WAV อัตโนมัติ',
@@ -1274,6 +1347,19 @@ const I18N = {
     srtErrDecode: 'ไม่สามารถถอดรหัสแทร็กเสียงได้ กรุณาแปลงเป็น MP4 / MP3 / WAV แล้วลองใหม่',
     srtErr: (m) => 'เกิดข้อผิดพลาด: ' + m,
     srtToastDone: (n) => `เสร็จแล้ว! ได้ซับไตเติล ${n} บรรทัด`,
+    srtFeishuLabel: 'เขียนลงตาราง Feishu',
+    srtFeishuUrlPh: 'วางลิงก์ตาราง Feishu (ลิงก์ wiki หรือ sheets, ใส่ ?sheet= เพื่อระบุแท็บ)',
+    srtFeishuKeyPh: 'รหัสทีม',
+    srtFeishuBtn: 'เขียน',
+    srtFeishuNote: 'เพิ่มสองคอลัมน์ (timestamp + ข้อความ) ต่อท้ายข้อมูลเดิมในตาราง ใส่รหัสทีมครั้งเดียว เบราว์เซอร์จะจำไว้',
+    srtFeishuWriting: 'กำลังเขียน...',
+    srtFeishuOk: (n) => `เขียน ${n} แถวลงตาราง Feishu แล้ว`,
+    srtFeishuErr: (m) => 'เขียนไม่สำเร็จ: ' + m,
+    srtFeishuNeedUrl: 'กรุณาวางลิงก์ตาราง Feishu ที่ถูกต้อง',
+    srtFeishuNeedKey: 'กรุณาใส่รหัสทีม',
+    srtDlXlsx: 'ดาวน์โหลด Excel',
+    srtColTs: 'เวลา',
+    srtColText: 'ข้อความ',
   },
   id: {
     title: 'Pemotong Audio MP3 / WAV Otomatis',
@@ -1350,6 +1436,19 @@ const I18N = {
     srtErrDecode: 'Tidak dapat mendekode trek audio. Konversi ke MP4 / MP3 / WAV lalu coba lagi',
     srtErr: (m) => 'Kesalahan transkripsi: ' + m,
     srtToastDone: (n) => `Selesai! ${n} baris subtitle`,
+    srtFeishuLabel: 'Tulis ke Sheet Feishu',
+    srtFeishuUrlPh: 'Tempel tautan sheet Feishu (URL wiki atau sheets, tambah ?sheet= untuk tab tertentu)',
+    srtFeishuKeyPh: 'Kunci tim',
+    srtFeishuBtn: 'Tulis',
+    srtFeishuNote: 'Menambahkan dua kolom (timestamp + teks) setelah baris yang ada di sheet tujuan. Masukkan kunci tim sekali; browser akan mengingatnya.',
+    srtFeishuWriting: 'Menulis...',
+    srtFeishuOk: (n) => `${n} baris ditulis ke sheet Feishu`,
+    srtFeishuErr: (m) => 'Gagal menulis: ' + m,
+    srtFeishuNeedUrl: 'Tempel tautan sheet Feishu yang valid',
+    srtFeishuNeedKey: 'Masukkan kunci tim',
+    srtDlXlsx: 'Unduh Excel',
+    srtColTs: 'Stempel waktu',
+    srtColText: 'Teks',
   },
   ms: {
     title: 'Pemotong Audio MP3 / WAV Automatik',
@@ -1426,6 +1525,19 @@ const I18N = {
     srtErrDecode: 'Tidak dapat menyahkod trek audio. Tukar kepada MP4 / MP3 / WAV dan cuba lagi',
     srtErr: (m) => 'Ralat transkripsi: ' + m,
     srtToastDone: (n) => `Selesai! ${n} baris sari kata`,
+    srtFeishuLabel: 'Tulis ke Helaian Feishu',
+    srtFeishuUrlPh: 'Tampal pautan helaian Feishu (URL wiki atau sheets, tambah ?sheet= untuk tab tertentu)',
+    srtFeishuKeyPh: 'Kunci pasukan',
+    srtFeishuBtn: 'Tulis',
+    srtFeishuNote: 'Menambah dua lajur (cap masa + teks) selepas baris sedia ada dalam helaian sasaran. Masukkan kunci pasukan sekali; pelayar akan mengingatinya.',
+    srtFeishuWriting: 'Menulis...',
+    srtFeishuOk: (n) => `${n} baris ditulis ke helaian Feishu`,
+    srtFeishuErr: (m) => 'Gagal menulis: ' + m,
+    srtFeishuNeedUrl: 'Sila tampal pautan helaian Feishu yang sah',
+    srtFeishuNeedKey: 'Sila masukkan kunci pasukan',
+    srtDlXlsx: 'Muat Turun Excel',
+    srtColTs: 'Cap masa',
+    srtColText: 'Teks',
   }
 };
 
@@ -1476,6 +1588,12 @@ function applyLang() {
   document.getElementById('t-srt-dlsrt').textContent = L.srtDlSrt;
   document.getElementById('t-srt-dltxt').textContent = L.srtDlTxt;
   document.getElementById('t-srt-copy').textContent = L.srtCopy;
+  document.getElementById('t-srt-feishu-label').textContent = L.srtFeishuLabel;
+  document.getElementById('srtFeishuUrl').placeholder = L.srtFeishuUrlPh;
+  document.getElementById('srtFeishuKey').placeholder = L.srtFeishuKeyPh;
+  document.getElementById('t-srt-feishu-btn').textContent = L.srtFeishuBtn;
+  document.getElementById('t-srt-feishu-note').textContent = L.srtFeishuNote;
+  document.getElementById('t-srt-dlxlsx').textContent = L.srtDlXlsx;
   // Image module labels
   document.getElementById('t-img-title').textContent = L.imgTitle;
   document.getElementById('t-img-subtitle').textContent = L.imgSubtitle;
@@ -2445,6 +2563,85 @@ function downloadSrtBlob(content, ext) {
   a.href = url; a.download = baseName + '.' + ext; a.click();
   URL.revokeObjectURL(url);
 }
+
+// ---- Excel export (SheetJS, lazy-loaded like lamejs) ----
+let xlsxLoaded = false;
+async function loadXlsx() {
+  if (xlsxLoaded) return;
+  await new Promise((resolve, reject) => {
+    const s = document.createElement('script');
+    s.src = 'https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js';
+    s.onload = () => { xlsxLoaded = true; resolve(); };
+    s.onerror = () => reject(new Error('Failed to load xlsx library'));
+    document.head.appendChild(s);
+  });
+}
+
+document.getElementById('srtDlXlsxBtn').addEventListener('click', async () => {
+  if (!srtChunks.length) return;
+  const L = I18N[currentLang];
+  try {
+    await loadXlsx();
+    const rows = [[L.srtColTs, L.srtColText],
+      ...srtChunks.map(c => [fmtClock(c.start) + ' - ' + fmtClock(c.end), c.text])];
+    const ws = XLSX.utils.aoa_to_sheet(rows);
+    ws['!cols'] = [{ wch: 16 }, { wch: 80 }];
+    const wb = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(wb, ws, 'SRT');
+    const baseName = srtFile ? srtFile.name.replace(/\.[^.]+$/, '') : 'subtitles';
+    XLSX.writeFile(wb, baseName + '.xlsx');
+  } catch (e) {
+    showToast(L.srtErr(e.message));
+  }
+});
+
+// ---- Feishu sheet write ----
+const srtFeishuUrl = document.getElementById('srtFeishuUrl');
+const srtFeishuKey = document.getElementById('srtFeishuKey');
+const srtFeishuBtn = document.getElementById('srtFeishuBtn');
+srtFeishuUrl.value = localStorage.getItem('a4t_feishu_url') || '';
+srtFeishuKey.value = localStorage.getItem('a4t_team_key') || '';
+
+const FEISHU_API = (location.hostname === 'tools.aheadfour.io') ? '' : 'https://tools.aheadfour.io';
+
+function fmtClock(t) {
+  if (t == null || isNaN(t) || t < 0) t = 0;
+  const s = Math.round(t);
+  const h = Math.floor(s / 3600), m = Math.floor((s % 3600) / 60), sec = s % 60;
+  const p = n => String(n).padStart(2, '0');
+  return (srtDuration >= 3600 || h > 0) ? `${p(h)}:${p(m)}:${p(sec)}` : `${p(m)}:${p(sec)}`;
+}
+
+srtFeishuBtn.addEventListener('click', async () => {
+  const L = I18N[currentLang];
+  if (!srtChunks.length) return;
+  const url = srtFeishuUrl.value.trim();
+  const key = srtFeishuKey.value.trim();
+  if (!url || !/https?:\/\/[^ ]+\.(feishu\.cn|larksuite\.com|larkoffice\.com)\//.test(url)) { showToast(L.srtFeishuNeedUrl); return; }
+  if (!key) { showToast(L.srtFeishuNeedKey); return; }
+  localStorage.setItem('a4t_feishu_url', url);
+  localStorage.setItem('a4t_team_key', key);
+  const rows = srtChunks.map(c => [fmtClock(c.start) + ' - ' + fmtClock(c.end), c.text]);
+  srtFeishuBtn.disabled = true;
+  const btnLabel = document.getElementById('t-srt-feishu-btn');
+  const oldText = btnLabel.textContent;
+  btnLabel.textContent = L.srtFeishuWriting;
+  try {
+    const res = await fetch(FEISHU_API + '/api/feishu-append', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'X-Team-Key': key },
+      body: JSON.stringify({ url, rows }),
+    });
+    const d = await res.json();
+    if (d.ok) showToast(L.srtFeishuOk(d.updatedRows));
+    else showToast(L.srtFeishuErr(d.error || res.status));
+  } catch (e) {
+    showToast(L.srtFeishuErr(e.message));
+  } finally {
+    srtFeishuBtn.disabled = false;
+    btnLabel.textContent = oldText;
+  }
+});
 
 document.getElementById('srtDlSrtBtn').addEventListener('click', () => downloadSrtBlob(buildSrt(), 'srt'));
 document.getElementById('srtDlTxtBtn').addEventListener('click', () => downloadSrtBlob(buildTxt(), 'txt'));
