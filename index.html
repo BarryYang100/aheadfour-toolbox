@@ -722,6 +722,32 @@
   .srt-feishu-row input:focus { outline: none; border-color: var(--border-hover); }
   .srt-feishu-url { flex: 1; min-width: 220px; }
   .srt-feishu-key { width: 130px; }
+  .srt-action-bar { display: flex; gap: 10px; align-items: center; justify-content: center; }
+  .srt-task-actions { display: flex; gap: 6px; flex-shrink: 0; }
+  .srt-task-btn {
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    color: var(--text2);
+    font-family: 'Outfit', sans-serif;
+    font-size: 11px;
+    padding: 5px 10px;
+    cursor: pointer;
+    transition: all .15s;
+    white-space: nowrap;
+  }
+  .srt-task-btn:hover { color: var(--text); border-color: var(--border-hover); }
+  .file-item.srt-task.selected { border-color: var(--accent-mid); }
+  .file-item.srt-task[class] { cursor: default; }
+  .srt-st-running { color: var(--accent); }
+  .srt-st-done { color: #34d399; }
+  .srt-st-error, .srt-st-canceled { color: #f87171; }
+  .srt-done-file {
+    font-size: 12px;
+    font-weight: 400;
+    color: var(--text3);
+    margin-left: 6px;
+  }
 </style>
 </head>
 <body>
@@ -947,7 +973,7 @@
           <input type="checkbox" id="srtMirror" />
           <span id="t-srt-mirror">使用国内镜像下载模型 (hf-mirror.com)</span>
         </label>
-        <div class="srt-note" id="t-srt-note">首次使用需下载模型（Base ~80MB / Small ~250MB），之后缓存在浏览器中，离线可用。</div>
+        <div class="srt-note" id="t-srt-note">首次使用需下载模型（Base 约 120MB / Small 约 800MB，视设备而定），之后缓存在浏览器中，离线可用。</div>
       </div>
     </div>
 
@@ -955,14 +981,17 @@
       <div class="dz-icon">💬</div>
       <div class="dz-main" id="t-srt-dz-main">拖入视频或音频文件，或点击选择</div>
       <div class="dz-sub"><i class="shield">🔒</i><span id="t-srt-dz-sub">支持 MP4 / MOV / M4A / MP3 / WAV · 纯本地转写，不上传任何数据</span></div>
-      <input type="file" id="srtInput" accept="video/*,audio/*,.mp4,.mov,.m4a,.mp3,.wav,.aac" />
+      <input type="file" id="srtInput" accept="video/*,audio/*,.mp4,.mov,.m4a,.mp3,.wav,.aac" multiple />
     </div>
 
     <div class="file-list" id="srtFileList"></div>
 
-    <div class="action-bar">
+    <div class="action-bar srt-action-bar">
       <button class="process-btn" id="srtProcessBtn" disabled>
         <span id="t-srt-startbtn">开始转写</span>
+      </button>
+      <button class="dl-all-btn srt-queue-btn" id="srtQueueBtn" style="display:none">
+        <span id="t-srt-queuebtn">暂停队列</span>
       </button>
     </div>
 
@@ -977,7 +1006,7 @@
 
     <div class="results" id="srtResults">
       <div class="res-header">
-        <h3><span class="chk">✓</span> <span id="t-srt-done">转写完成</span></h3>
+        <h3><span class="chk">✓</span> <span id="t-srt-done">转写完成</span><span class="srt-done-file" id="srtDoneFile"></span></h3>
       </div>
       <div class="srt-seg-list" id="srtSegList"></div>
       <div class="srt-actions">
@@ -1063,7 +1092,7 @@ const I18N = {
     srtModelSmall: 'Small · 更准（推荐）',
     srtModelBase: 'Base · 更快',
     srtMirror: '使用国内镜像下载模型 (hf-mirror.com)',
-    srtNote: '首次使用需下载模型（Base ~80MB / Small ~250MB），之后缓存在浏览器中，离线可用。',
+    srtNote: '首次使用需下载模型（Base 约 120MB / Small 约 800MB，视设备而定），之后缓存在浏览器中，离线可用。',
     srtDzMain: '拖入视频或音频文件，或点击选择',
     srtDzSub: '支持 MP4 / MOV / M4A / MP3 / WAV · 纯本地转写，不上传任何数据',
     srtStartBtn: '开始转写',
@@ -1093,6 +1122,18 @@ const I18N = {
     srtDlXlsx: '下载 Excel',
     srtColTs: '时间戳',
     srtColText: '原文',
+    srtStQueued: '排队中',
+    srtStRunning: '转写中',
+    srtStDone: '已完成',
+    srtStError: '失败',
+    srtStCanceled: '已取消',
+    srtBtnCancel: '取消',
+    srtBtnRestart: '重新开始',
+    srtBtnRetry: '重试',
+    srtBtnRemove: '移除',
+    srtBtnView: '查看结果',
+    srtQueuePause: '暂停队列',
+    srtQueueResume: '继续队列',
   },
   en: {
     title: 'MP3 / WAV Audio Auto-Splitter',
@@ -1152,7 +1193,7 @@ const I18N = {
     srtModelSmall: 'Small · more accurate (recommended)',
     srtModelBase: 'Base · faster',
     srtMirror: 'Use China mirror for model download (hf-mirror.com)',
-    srtNote: 'First use downloads the model (Base ~80MB / Small ~250MB); it is then cached in your browser and works offline.',
+    srtNote: 'First use downloads the model (Base ~120MB / Small ~800MB depending on device); it is then cached in your browser and works offline.',
     srtDzMain: 'Drag video or audio file here, or click to browse',
     srtDzSub: 'Supports MP4 / MOV / M4A / MP3 / WAV · Fully local transcription, no data uploaded',
     srtStartBtn: 'Start Transcription',
@@ -1182,6 +1223,18 @@ const I18N = {
     srtDlXlsx: 'Download Excel',
     srtColTs: 'Timestamp',
     srtColText: 'Text',
+    srtStQueued: 'Queued',
+    srtStRunning: 'Transcribing',
+    srtStDone: 'Done',
+    srtStError: 'Failed',
+    srtStCanceled: 'Canceled',
+    srtBtnCancel: 'Cancel',
+    srtBtnRestart: 'Restart',
+    srtBtnRetry: 'Retry',
+    srtBtnRemove: 'Remove',
+    srtBtnView: 'View result',
+    srtQueuePause: 'Pause queue',
+    srtQueueResume: 'Resume queue',
   },
   pt: {
     title: 'Divisor Automático de MP3 / WAV',
@@ -1241,7 +1294,7 @@ const I18N = {
     srtModelSmall: 'Small · mais preciso (recomendado)',
     srtModelBase: 'Base · mais rápido',
     srtMirror: 'Usar espelho da China para baixar o modelo (hf-mirror.com)',
-    srtNote: 'No primeiro uso o modelo é baixado (Base ~80MB / Small ~250MB); depois fica em cache no navegador e funciona offline.',
+    srtNote: 'No primeiro uso o modelo é baixado (Base ~120MB / Small ~800MB conforme o dispositivo); depois fica em cache no navegador e funciona offline.',
     srtDzMain: 'Arraste o vídeo ou áudio aqui, ou clique para selecionar',
     srtDzSub: 'Suporta MP4 / MOV / M4A / MP3 / WAV · Transcrição 100% local, sem envio de dados',
     srtStartBtn: 'Iniciar Transcrição',
@@ -1271,6 +1324,18 @@ const I18N = {
     srtDlXlsx: 'Baixar Excel',
     srtColTs: 'Timestamp',
     srtColText: 'Texto',
+    srtStQueued: 'Na fila',
+    srtStRunning: 'Transcrevendo',
+    srtStDone: 'Concluído',
+    srtStError: 'Falhou',
+    srtStCanceled: 'Cancelado',
+    srtBtnCancel: 'Cancelar',
+    srtBtnRestart: 'Reiniciar',
+    srtBtnRetry: 'Tentar de novo',
+    srtBtnRemove: 'Remover',
+    srtBtnView: 'Ver resultado',
+    srtQueuePause: 'Pausar fila',
+    srtQueueResume: 'Retomar fila',
   },
   th: {
     title: 'ตัดไฟล์เสียง MP3 / WAV อัตโนมัติ',
@@ -1330,7 +1395,7 @@ const I18N = {
     srtModelSmall: 'Small · แม่นยำกว่า (แนะนำ)',
     srtModelBase: 'Base · เร็วกว่า',
     srtMirror: 'ใช้ mirror จีนสำหรับดาวน์โหลดโมเดล (hf-mirror.com)',
-    srtNote: 'ครั้งแรกต้องดาวน์โหลดโมเดล (Base ~80MB / Small ~250MB) หลังจากนั้นจะแคชในเบราว์เซอร์และใช้แบบออฟไลน์ได้',
+    srtNote: 'ครั้งแรกต้องดาวน์โหลดโมเดล (Base ~120MB / Small ~800MB ขึ้นกับอุปกรณ์) หลังจากนั้นจะแคชในเบราว์เซอร์และใช้แบบออฟไลน์ได้',
     srtDzMain: 'ลากวิดีโอหรือไฟล์เสียงมาวางที่นี่ หรือคลิกเพื่อเลือก',
     srtDzSub: 'รองรับ MP4 / MOV / M4A / MP3 / WAV · ถอดเสียงในเครื่อง ไม่อัปโหลดข้อมูล',
     srtStartBtn: 'เริ่มถอดเสียง',
@@ -1360,6 +1425,18 @@ const I18N = {
     srtDlXlsx: 'ดาวน์โหลด Excel',
     srtColTs: 'เวลา',
     srtColText: 'ข้อความ',
+    srtStQueued: 'รอคิว',
+    srtStRunning: 'กำลังถอดเสียง',
+    srtStDone: 'เสร็จแล้ว',
+    srtStError: 'ล้มเหลว',
+    srtStCanceled: 'ยกเลิกแล้ว',
+    srtBtnCancel: 'ยกเลิก',
+    srtBtnRestart: 'เริ่มใหม่',
+    srtBtnRetry: 'ลองอีกครั้ง',
+    srtBtnRemove: 'ลบออก',
+    srtBtnView: 'ดูผลลัพธ์',
+    srtQueuePause: 'พักคิว',
+    srtQueueResume: 'ทำคิวต่อ',
   },
   id: {
     title: 'Pemotong Audio MP3 / WAV Otomatis',
@@ -1419,7 +1496,7 @@ const I18N = {
     srtModelSmall: 'Small · lebih akurat (disarankan)',
     srtModelBase: 'Base · lebih cepat',
     srtMirror: 'Gunakan mirror Tiongkok untuk unduh model (hf-mirror.com)',
-    srtNote: 'Penggunaan pertama mengunduh model (Base ~80MB / Small ~250MB); setelah itu di-cache di browser dan bisa offline.',
+    srtNote: 'Penggunaan pertama mengunduh model (Base ~120MB / Small ~800MB tergantung perangkat); setelah itu di-cache di browser dan bisa offline.',
     srtDzMain: 'Seret video atau audio ke sini, atau klik untuk memilih',
     srtDzSub: 'Mendukung MP4 / MOV / M4A / MP3 / WAV · Transkripsi lokal, tanpa unggah data',
     srtStartBtn: 'Mulai Transkripsi',
@@ -1449,6 +1526,18 @@ const I18N = {
     srtDlXlsx: 'Unduh Excel',
     srtColTs: 'Stempel waktu',
     srtColText: 'Teks',
+    srtStQueued: 'Dalam antrean',
+    srtStRunning: 'Mentranskripsi',
+    srtStDone: 'Selesai',
+    srtStError: 'Gagal',
+    srtStCanceled: 'Dibatalkan',
+    srtBtnCancel: 'Batalkan',
+    srtBtnRestart: 'Mulai ulang',
+    srtBtnRetry: 'Coba lagi',
+    srtBtnRemove: 'Hapus',
+    srtBtnView: 'Lihat hasil',
+    srtQueuePause: 'Jeda antrean',
+    srtQueueResume: 'Lanjutkan antrean',
   },
   ms: {
     title: 'Pemotong Audio MP3 / WAV Automatik',
@@ -1508,7 +1597,7 @@ const I18N = {
     srtModelSmall: 'Small · lebih tepat (disyorkan)',
     srtModelBase: 'Base · lebih pantas',
     srtMirror: 'Guna cermin China untuk muat turun model (hf-mirror.com)',
-    srtNote: 'Penggunaan pertama akan memuat turun model (Base ~80MB / Small ~250MB); selepas itu dicache dalam pelayar dan boleh digunakan luar talian.',
+    srtNote: 'Penggunaan pertama akan memuat turun model (Base ~120MB / Small ~800MB bergantung pada peranti); selepas itu dicache dalam pelayar dan boleh digunakan luar talian.',
     srtDzMain: 'Seret video atau audio ke sini, atau klik untuk pilih',
     srtDzSub: 'Menyokong MP4 / MOV / M4A / MP3 / WAV · Transkripsi setempat, tiada data dimuat naik',
     srtStartBtn: 'Mula Transkripsi',
@@ -1538,6 +1627,18 @@ const I18N = {
     srtDlXlsx: 'Muat Turun Excel',
     srtColTs: 'Cap masa',
     srtColText: 'Teks',
+    srtStQueued: 'Dalam giliran',
+    srtStRunning: 'Mentranskripsi',
+    srtStDone: 'Selesai',
+    srtStError: 'Gagal',
+    srtStCanceled: 'Dibatalkan',
+    srtBtnCancel: 'Batal',
+    srtBtnRestart: 'Mula semula',
+    srtBtnRetry: 'Cuba lagi',
+    srtBtnRemove: 'Buang',
+    srtBtnView: 'Lihat hasil',
+    srtQueuePause: 'Jeda giliran',
+    srtQueueResume: 'Sambung giliran',
   }
 };
 
@@ -1594,6 +1695,7 @@ function applyLang() {
   document.getElementById('t-srt-feishu-btn').textContent = L.srtFeishuBtn;
   document.getElementById('t-srt-feishu-note').textContent = L.srtFeishuNote;
   document.getElementById('t-srt-dlxlsx').textContent = L.srtDlXlsx;
+  renderSrtTasks();
   // Image module labels
   document.getElementById('t-img-title').textContent = L.imgTitle;
   document.getElementById('t-img-subtitle').textContent = L.imgSubtitle;
@@ -2284,47 +2386,140 @@ const srtProgressStatus = document.getElementById('srtProgressStatus');
 const srtResults = document.getElementById('srtResults');
 const srtSegList = document.getElementById('srtSegList');
 
+const srtQueueBtn = document.getElementById('srtQueueBtn');
+
+// Mirrors of the currently selected (done) task, consumed by the
+// SRT/TXT/Excel/Feishu export actions further down.
 let srtFile = null;
 let srtDuration = 0;
 let srtChunks = [];
 let srtWorker = null;
-let srtBusy = false;
+
+// Task queue: files transcribe sequentially (the GPU can only run one model
+// at a time); new files can be added while the queue is running.
+let srtTasks = [];
+let srtTaskSeq = 0;
+let srtQueueActive = false;
+let srtQueuePaused = false;
+let srtCurrentTask = null;
+let srtCurrentReject = null;
+let srtSelectedTaskId = null;
 
 srtDropzone.addEventListener('dragover', e => { e.preventDefault(); srtDropzone.classList.add('dragover'); });
 srtDropzone.addEventListener('dragleave', () => srtDropzone.classList.remove('dragover'));
 srtDropzone.addEventListener('drop', e => {
   e.preventDefault();
   srtDropzone.classList.remove('dragover');
-  if (e.dataTransfer.files[0]) handleSrtFile(e.dataTransfer.files[0]);
+  if (e.dataTransfer.files.length) handleSrtFiles(e.dataTransfer.files);
 });
-srtInput.addEventListener('change', e => { if (e.target.files[0]) handleSrtFile(e.target.files[0]); });
+srtInput.addEventListener('change', e => { if (e.target.files.length) handleSrtFiles(e.target.files); });
 
-async function handleSrtFile(file) {
-  srtFile = file;
-  srtDuration = 0;
-  try { srtDuration = await getAudioDuration(file); } catch(e) {}
-  const durStr = srtDuration > 0 ? formatTime(srtDuration) : '--:--';
-  const ext = (file.name.split('.').pop() || '').toUpperCase();
-  srtFileList.innerHTML = `
-    <div class="file-item">
-      <div class="fi-icon">🎬</div>
-      <div class="fi-info">
-        <div class="fi-name">${file.name}</div>
-        <div class="fi-meta">
-          <span>${formatSize(file.size)}</span>
-          <span>${durStr}</span>
-          <span class="audio-info-badge">${ext}</span>
-        </div>
-      </div>
-      <button class="fi-remove" onclick="removeSrtFile()">✕</button>
-    </div>`;
-  srtProcessBtn.disabled = false;
+function handleSrtFiles(files) {
+  for (const file of files) {
+    const task = { id: ++srtTaskSeq, file, status: 'queued', duration: 0, chunks: null, error: null };
+    srtTasks.push(task);
+    getAudioDuration(file).then(d => { task.duration = d; renderSrtTasks(); }).catch(() => {});
+  }
+  renderSrtTasks();
 }
 
-function removeSrtFile() {
-  srtFile = null;
+function srtStatusLabel(s) {
+  const L = I18N[currentLang];
+  return { queued: L.srtStQueued, running: L.srtStRunning, done: L.srtStDone, error: L.srtStError, canceled: L.srtStCanceled }[s] || s;
+}
+
+function renderSrtTasks() {
+  const L = I18N[currentLang];
   srtFileList.innerHTML = '';
-  srtProcessBtn.disabled = true;
+  srtTasks.forEach(task => {
+    const f = task.file;
+    const durStr = task.duration > 0 ? formatTime(task.duration) : '--:--';
+    const div = document.createElement('div');
+    div.className = 'file-item srt-task' + (task.id === srtSelectedTaskId ? ' selected' : '');
+    let actions = '';
+    if (task.status === 'queued') {
+      actions = `<button class="srt-task-btn" data-act="remove">${L.srtBtnRemove}</button>`;
+    } else if (task.status === 'running') {
+      actions = `<button class="srt-task-btn" data-act="restart">${L.srtBtnRestart}</button>
+                 <button class="srt-task-btn" data-act="cancel">${L.srtBtnCancel}</button>`;
+    } else if (task.status === 'done') {
+      actions = `<button class="srt-task-btn" data-act="view">${L.srtBtnView}</button>`;
+    } else {
+      actions = `<button class="srt-task-btn" data-act="retry">${L.srtBtnRetry}</button>
+                 <button class="srt-task-btn" data-act="remove">${L.srtBtnRemove}</button>`;
+    }
+    div.innerHTML = `
+      <div class="fi-icon">🎬</div>
+      <div class="fi-info">
+        <div class="fi-name">${f.name}</div>
+        <div class="fi-meta">
+          <span>${formatSize(f.size)}</span>
+          <span>${durStr}</span>
+          <span class="audio-info-badge srt-st-${task.status}">${srtStatusLabel(task.status)}</span>
+        </div>
+      </div>
+      <div class="srt-task-actions">${actions}</div>`;
+    div.querySelectorAll('.srt-task-btn').forEach(btn => {
+      btn.addEventListener('click', (e) => { e.stopPropagation(); srtTaskAction(task.id, btn.dataset.act); });
+    });
+    if (task.status === 'done') div.addEventListener('click', () => selectSrtTask(task.id));
+    srtFileList.appendChild(div);
+  });
+  updateQueueControls();
+}
+
+function updateQueueControls() {
+  const L = I18N[currentLang];
+  const hasQueued = srtTasks.some(t => t.status === 'queued');
+  srtProcessBtn.disabled = srtQueueActive || !hasQueued;
+  const showQueueBtn = srtQueueActive || (srtQueuePaused && hasQueued);
+  srtQueueBtn.style.display = showQueueBtn ? '' : 'none';
+  document.getElementById('t-srt-queuebtn').textContent = srtQueuePaused ? L.srtQueueResume : L.srtQueuePause;
+}
+
+function srtTaskAction(id, act) {
+  const task = srtTasks.find(t => t.id === id);
+  if (!task) return;
+  if (act === 'remove') {
+    srtTasks = srtTasks.filter(t => t.id !== id);
+    if (srtSelectedTaskId === id) { srtSelectedTaskId = null; srtResults.classList.remove('active'); }
+    renderSrtTasks();
+  } else if (act === 'retry') {
+    task.status = 'queued'; task.error = null;
+    renderSrtTasks();
+    if (srtLangSel.value && !srtQueuePaused) kickQueue();
+  } else if (act === 'view') {
+    selectSrtTask(id);
+  } else if (act === 'cancel') {
+    cancelCurrent(false);
+  } else if (act === 'restart') {
+    cancelCurrent(true);
+  }
+}
+
+function selectSrtTask(id) {
+  const task = srtTasks.find(t => t.id === id && t.status === 'done');
+  if (!task) return;
+  srtSelectedTaskId = id;
+  srtChunks = task.chunks;
+  srtDuration = task.duration;
+  srtFile = task.file;
+  renderSrtResults();
+  document.getElementById('srtDoneFile').textContent = ' · ' + task.file.name;
+  renderSrtTasks();
+}
+
+// Cancel the running task; with requeue=true it goes back to the front of the
+// queue (= restart). Terminating the worker drops the loaded model — the next
+// task re-initializes it from the browser cache (no re-download).
+function cancelCurrent(requeue) {
+  const task = srtCurrentTask;
+  if (!task) return;
+  if (srtWorker) { try { srtWorker.terminate(); } catch (_) {} srtWorker = null; }
+  task.status = requeue ? 'queued' : 'canceled';
+  if (requeue) srtTasks = [task, ...srtTasks.filter(t => t.id !== task.id)];
+  srtProgressSection.classList.remove('active');
+  if (srtCurrentReject) srtCurrentReject({ __canceled: true });
 }
 
 function srtSetProgress(label, pct, status) {
@@ -2424,32 +2619,62 @@ function getSrtWorker() {
   return srtWorker;
 }
 
-srtProcessBtn.addEventListener('click', async () => {
-  if (!srtFile || srtBusy) return;
+srtProcessBtn.addEventListener('click', () => {
   const L = I18N[currentLang];
+  if (!srtLangSel.value) { showToast(L.srtSelectLang); return; }
+  srtQueuePaused = false;
+  kickQueue();
+});
+
+srtQueueBtn.addEventListener('click', () => {
+  if (srtQueuePaused) {
+    srtQueuePaused = false;
+    updateQueueControls();
+    kickQueue();
+  } else {
+    // takes effect after the current task finishes
+    srtQueuePaused = true;
+    updateQueueControls();
+  }
+});
+
+async function kickQueue() {
+  if (srtQueueActive || srtQueuePaused) { updateQueueControls(); return; }
+  if (!srtLangSel.value) return;
+  srtQueueActive = true;
+  updateQueueControls();
+  while (!srtQueuePaused) {
+    const task = srtTasks.find(t => t.status === 'queued');
+    if (!task) break;
+    await runSrtTask(task);
+  }
+  srtQueueActive = false;
+  srtCurrentTask = null;
+  renderSrtTasks();
+}
+
+async function runSrtTask(task) {
   const langVal = srtLangSel.value;
-  if (!langVal) { showToast(L.srtSelectLang); return; }
-  srtBusy = true;
-  srtProcessBtn.disabled = true;
-  srtResults.classList.remove('active');
-  srtSegList.innerHTML = '';
-  srtChunks = [];
+  task.status = 'running';
+  srtCurrentTask = task;
+  renderSrtTasks();
 
   try {
-    srtSetProgress(L.srtDecoding, 0, srtFile.name);
+    srtSetProgress(I18N[currentLang].srtDecoding, 0, task.file.name);
     let extracted;
     try {
-      extracted = await extractAudio16k(srtFile);
+      extracted = await extractAudio16k(task.file);
     } catch (e) {
-      throw new Error(L.srtErrDecode);
+      throw new Error(I18N[currentLang].srtErrDecode);
     }
-    srtDuration = extracted.duration;
+    task.duration = extracted.duration;
 
     const worker = getSrtWorker();
     const modelFiles = {}; // file -> {loaded, total}
     let device = null;
 
     const result = await new Promise((resolve, reject) => {
+      srtCurrentReject = reject;
       worker.onmessage = (e) => {
         const m = e.data;
         if (m.type === 'model') {
@@ -2463,10 +2688,10 @@ srtProcessBtn.addEventListener('click', async () => {
         } else if (m.type === 'ready') {
           device = m.device;
           const label = device === 'wasm' ? I18N[currentLang].srtTranscribingWasm : I18N[currentLang].srtTranscribing;
-          srtSetProgress(label, 0, '');
+          srtSetProgress(label, 0, task.file.name);
         } else if (m.type === 'progress') {
           const label = device === 'wasm' ? I18N[currentLang].srtTranscribingWasm : I18N[currentLang].srtTranscribing;
-          srtSetProgress(label, m.pct, '');
+          srtSetProgress(label, m.pct, task.file.name);
         } else if (m.type === 'result') {
           resolve(m);
         } else if (m.type === 'error') {
@@ -2483,19 +2708,28 @@ srtProcessBtn.addEventListener('click', async () => {
       }, [extracted.audio.buffer]);
     });
 
-    srtChunks = normalizeSrtChunks(result.chunks, srtDuration, result.text);
-    srtSetProgress(I18N[currentLang].completed, 100, '');
-    renderSrtResults();
-    showToast(I18N[currentLang].srtToastDone(srtChunks.length));
+    srtCurrentReject = null;
+    task.chunks = normalizeSrtChunks(result.chunks, task.duration, result.text);
+    task.status = 'done';
+    srtSetProgress(I18N[currentLang].completed, 100, task.file.name);
+    selectSrtTask(task.id);
+    showToast(I18N[currentLang].srtToastDone(task.chunks.length));
   } catch (e) {
-    console.error(e);
-    showToast(I18N[currentLang].srtErr(e.message));
-    srtProgressSection.classList.remove('active');
+    srtCurrentReject = null;
+    if (e && e.__canceled) {
+      // status already set by cancelCurrent (canceled or requeued)
+    } else {
+      console.error(e);
+      task.status = 'error';
+      task.error = e.message;
+      showToast(I18N[currentLang].srtErr(e.message));
+      srtProgressSection.classList.remove('active');
+    }
   } finally {
-    srtBusy = false;
-    srtProcessBtn.disabled = !srtFile;
+    srtCurrentTask = null;
+    renderSrtTasks();
   }
-});
+}
 
 function normalizeSrtChunks(chunks, totalDur, fallbackText) {
   const out = [];
