@@ -61,32 +61,57 @@
   }
 
   /* Language switcher */
-  .lang-switcher {
+  .lang-dd { position: relative; }
+  .lang-dd-btn {
     display: flex;
+    align-items: center;
+    gap: 7px;
     background: var(--surface);
     border: 1px solid var(--border);
     border-radius: 8px;
-    overflow: hidden;
-  }
-  .lang-btn {
-    background: none;
-    border: none;
     color: var(--text2);
     font-family: 'Outfit', sans-serif;
     font-size: 12px;
     font-weight: 500;
-    padding: 7px 14px;
+    padding: 7px 12px;
     cursor: pointer;
     transition: all 0.2s;
-    border-right: 1px solid var(--border);
     letter-spacing: 0.02em;
   }
-  .lang-btn:last-child { border-right: none; }
-  .lang-btn:hover { color: var(--text); background: var(--surface2); }
-  .lang-btn.active {
-    color: var(--accent);
-    background: var(--accent-dim);
+  .lang-dd-btn:hover { color: var(--text); border-color: var(--border-hover); }
+  .lang-dd-btn .globe { font-size: 14px; line-height: 1; }
+  .lang-dd-btn .caret { font-size: 9px; opacity: 0.6; }
+  .lang-dd-menu {
+    display: none;
+    position: absolute;
+    right: 0;
+    top: calc(100% + 6px);
+    min-width: 170px;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 5px;
+    z-index: 100;
+    box-shadow: 0 12px 32px rgba(0,0,0,0.45);
   }
+  .lang-dd-menu.open { display: block; }
+  .lang-dd-item {
+    display: block;
+    width: 100%;
+    text-align: left;
+    background: none;
+    border: none;
+    border-radius: 7px;
+    color: var(--text2);
+    font-family: 'Outfit', sans-serif;
+    font-size: 12.5px;
+    font-weight: 500;
+    padding: 8px 11px;
+    cursor: pointer;
+    transition: all 0.15s;
+  }
+  .lang-dd-item:hover { color: var(--text); background: var(--surface2); }
+  .lang-dd-item.active { color: var(--accent); background: var(--accent-dim); }
 
   /* Header */
   .header {
@@ -444,7 +469,7 @@
     .app { padding: 28px 14px 80px; }
     .config-grid { grid-template-columns: 1fr; }
     .header h1 { font-size: 24px; }
-    .lang-btn { padding: 6px 10px; font-size: 11px; }
+    .lang-dd-btn { padding: 6px 10px; font-size: 11px; }
   }
 
   /* ===================== Module tabs ===================== */
@@ -619,6 +644,58 @@
   @media (max-width: 520px) {
     .img-compare { grid-template-columns: 1fr; }
   }
+
+  /* ===================== SRT module ===================== */
+  .srt-note {
+    font-size: 11.5px;
+    color: var(--text3);
+    line-height: 1.5;
+    margin-top: 8px;
+  }
+  .srt-mirror-row {
+    display: flex; align-items: center; gap: 8px;
+    margin-top: 10px;
+    font-size: 12px;
+    color: var(--text2);
+    cursor: pointer;
+    user-select: none;
+  }
+  .srt-mirror-row input { accent-color: var(--accent); }
+  .srt-seg-list {
+    max-height: 380px;
+    overflow-y: auto;
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    background: var(--surface2);
+  }
+  .srt-seg {
+    display: flex;
+    gap: 14px;
+    padding: 10px 14px;
+    border-bottom: 1px solid var(--border);
+    align-items: baseline;
+  }
+  .srt-seg:last-child { border-bottom: none; }
+  .srt-seg-time {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    color: var(--accent);
+    white-space: nowrap;
+    flex-shrink: 0;
+  }
+  .srt-seg-text {
+    font-size: 13px;
+    color: var(--text);
+    line-height: 1.55;
+    word-break: break-word;
+  }
+  .srt-actions {
+    display: flex;
+    gap: 10px;
+    margin-top: 14px;
+    flex-wrap: wrap;
+  }
+  .srt-actions .dl-all-btn { flex: 1; min-width: 120px; justify-content: center; display: flex; }
 </style>
 </head>
 <body>
@@ -630,16 +707,27 @@
       <div class="topbar-logo">S</div>
       <div class="topbar-title">Audio Splitter</div>
     </div>
-    <div class="lang-switcher">
-      <button class="lang-btn active" onclick="setLang('zh')">中文</button>
-      <button class="lang-btn" onclick="setLang('en')">EN</button>
-      <button class="lang-btn" onclick="setLang('pt')">PT-BR</button>
+    <div class="lang-dd" id="langDd">
+      <button class="lang-dd-btn" id="langDdBtn">
+        <span class="globe">🌐</span><span id="langDdLabel">中文</span><span class="caret">▼</span>
+      </button>
+      <div class="lang-dd-menu" id="langDdMenu">
+        <button class="lang-dd-item active" data-lang="zh">中文</button>
+        <button class="lang-dd-item" data-lang="en">English</button>
+        <button class="lang-dd-item" data-lang="th">ไทย</button>
+        <button class="lang-dd-item" data-lang="id">Bahasa Indonesia</button>
+        <button class="lang-dd-item" data-lang="ms">Bahasa Melayu</button>
+        <button class="lang-dd-item" data-lang="pt">Português</button>
+      </div>
     </div>
   </div>
 
   <!-- Module tabs -->
   <div class="modules">
-    <button class="mod-btn active" data-mod="audio" onclick="setModule('audio')">
+    <button class="mod-btn active" data-mod="srt" onclick="setModule('srt')">
+      <span>💬</span><span id="t-mod-srt">视频转字幕</span>
+    </button>
+    <button class="mod-btn" data-mod="audio" onclick="setModule('audio')">
       <span>🎵</span><span id="t-mod-audio">音频切割</span>
     </button>
     <button class="mod-btn" data-mod="image" onclick="setModule('image')">
@@ -648,7 +736,7 @@
   </div>
 
   <!-- ===================== Audio module ===================== -->
-  <div class="module" id="module-audio">
+  <div class="module hidden" id="module-audio">
 
   <div class="header">
     <h1 id="t-title">MP3 / WAV 音频自动切割</h1>
@@ -801,6 +889,79 @@
     </div>
 
   </div><!-- /module-image -->
+
+  <!-- ===================== SRT module ===================== -->
+  <div class="module" id="module-srt">
+
+    <div class="header">
+      <h1 id="t-srt-title">视频 / 音频转 SRT 字幕</h1>
+      <p id="t-srt-subtitle">上传视频或音频，浏览器内 AI 语音转写，生成带时间戳的 SRT 字幕。纯本地处理，文件不会上传。</p>
+    </div>
+
+    <div class="config-grid">
+      <div class="config-card">
+        <div class="config-label"><span class="dot"></span><span id="t-srt-lang">语音语言</span></div>
+        <select class="format-select" id="srtLang">
+          <option value="" id="t-srt-lang-ph">请选择语言</option>
+          <option value="zh">中文</option>
+          <option value="th">ไทย (泰语)</option>
+          <option value="id">Bahasa Indonesia (印尼语)</option>
+          <option value="ms">Bahasa Melayu (马来语)</option>
+          <option value="en">English</option>
+          <option value="auto" id="t-srt-lang-auto">自动检测</option>
+        </select>
+      </div>
+      <div class="config-card">
+        <div class="config-label"><span class="dot"></span><span id="t-srt-model">模型</span></div>
+        <select class="format-select" id="srtModel">
+          <option value="onnx-community/whisper-small" id="t-srt-model-small">Small · 更准（推荐）</option>
+          <option value="onnx-community/whisper-base" id="t-srt-model-base">Base · 更快</option>
+        </select>
+        <label class="srt-mirror-row">
+          <input type="checkbox" id="srtMirror" />
+          <span id="t-srt-mirror">使用国内镜像下载模型 (hf-mirror.com)</span>
+        </label>
+        <div class="srt-note" id="t-srt-note">首次使用需下载模型（Base ~80MB / Small ~250MB），之后缓存在浏览器中，离线可用。</div>
+      </div>
+    </div>
+
+    <div class="dropzone" id="srtDropzone">
+      <div class="dz-icon">💬</div>
+      <div class="dz-main" id="t-srt-dz-main">拖入视频或音频文件，或点击选择</div>
+      <div class="dz-sub"><i class="shield">🔒</i><span id="t-srt-dz-sub">支持 MP4 / MOV / M4A / MP3 / WAV · 纯本地转写，不上传任何数据</span></div>
+      <input type="file" id="srtInput" accept="video/*,audio/*,.mp4,.mov,.m4a,.mp3,.wav,.aac" />
+    </div>
+
+    <div class="file-list" id="srtFileList"></div>
+
+    <div class="action-bar">
+      <button class="process-btn" id="srtProcessBtn" disabled>
+        <span id="t-srt-startbtn">开始转写</span>
+      </button>
+    </div>
+
+    <div class="progress-section" id="srtProgressSection">
+      <div class="prog-header">
+        <span class="prog-label" id="srtProgressLabel">处理中...</span>
+        <span class="prog-pct" id="srtProgressPct">0%</span>
+      </div>
+      <div class="prog-track"><div class="prog-fill" id="srtProgressFill"></div></div>
+      <div class="prog-status" id="srtProgressStatus"></div>
+    </div>
+
+    <div class="results" id="srtResults">
+      <div class="res-header">
+        <h3><span class="chk">✓</span> <span id="t-srt-done">转写完成</span></h3>
+      </div>
+      <div class="srt-seg-list" id="srtSegList"></div>
+      <div class="srt-actions">
+        <button class="dl-all-btn" id="srtDlSrtBtn"><span id="t-srt-dlsrt">下载 .srt</span></button>
+        <button class="dl-all-btn" id="srtDlTxtBtn"><span id="t-srt-dltxt">下载 .txt</span></button>
+        <button class="dl-all-btn" id="srtCopyBtn"><span id="t-srt-copy">复制全文</span></button>
+      </div>
+    </div>
+
+  </div><!-- /module-srt -->
 </div>
 
 <div class="toast" id="toast"></div>
@@ -856,6 +1017,33 @@ const I18N = {
     imgChipQuality: (q) => `质量: ${q}`,
     imgErrLoad: '图片加载失败',
     imgDone: (sizeBefore, sizeAfter) => `处理完成：${sizeBefore} → ${sizeAfter}`,
+    modSrt: '视频转字幕',
+    srtTitle: '视频 / 音频转 SRT 字幕',
+    srtSubtitle: '上传视频或音频，浏览器内 AI 语音转写，生成带时间戳的 SRT 字幕。纯本地处理，文件不会上传。',
+    srtLang: '语音语言',
+    srtLangPh: '请选择语言',
+    srtLangAuto: '自动检测',
+    srtModel: '模型',
+    srtModelSmall: 'Small · 更准（推荐）',
+    srtModelBase: 'Base · 更快',
+    srtMirror: '使用国内镜像下载模型 (hf-mirror.com)',
+    srtNote: '首次使用需下载模型（Base ~80MB / Small ~250MB），之后缓存在浏览器中，离线可用。',
+    srtDzMain: '拖入视频或音频文件，或点击选择',
+    srtDzSub: '支持 MP4 / MOV / M4A / MP3 / WAV · 纯本地转写，不上传任何数据',
+    srtStartBtn: '开始转写',
+    srtSelectLang: '请先选择语音语言',
+    srtDecoding: '正在提取音轨...',
+    srtLoadingModel: '下载模型中（仅首次）...',
+    srtTranscribing: '转写中...',
+    srtTranscribingWasm: '转写中（未检测到 WebGPU，速度较慢）...',
+    srtDone: '转写完成',
+    srtDlSrt: '下载 .srt',
+    srtDlTxt: '下载 .txt',
+    srtCopy: '复制全文',
+    srtCopied: '已复制到剪贴板',
+    srtErrDecode: '无法解码该文件的音轨，请转成 MP4 / MP3 / WAV 后重试',
+    srtErr: (m) => '转写出错: ' + m,
+    srtToastDone: (n) => `转写完成，共 ${n} 条字幕`,
   },
   en: {
     title: 'MP3 / WAV Audio Auto-Splitter',
@@ -905,6 +1093,33 @@ const I18N = {
     imgChipQuality: (q) => `Quality: ${q}`,
     imgErrLoad: 'Failed to load image',
     imgDone: (sizeBefore, sizeAfter) => `Done: ${sizeBefore} → ${sizeAfter}`,
+    modSrt: 'Video → Subtitles',
+    srtTitle: 'Video / Audio to SRT Subtitles',
+    srtSubtitle: 'Upload a video or audio file — AI transcription runs in your browser and generates timestamped SRT subtitles. Fully local, no upload.',
+    srtLang: 'Spoken language',
+    srtLangPh: 'Select language',
+    srtLangAuto: 'Auto detect',
+    srtModel: 'Model',
+    srtModelSmall: 'Small · more accurate (recommended)',
+    srtModelBase: 'Base · faster',
+    srtMirror: 'Use China mirror for model download (hf-mirror.com)',
+    srtNote: 'First use downloads the model (Base ~80MB / Small ~250MB); it is then cached in your browser and works offline.',
+    srtDzMain: 'Drag video or audio file here, or click to browse',
+    srtDzSub: 'Supports MP4 / MOV / M4A / MP3 / WAV · Fully local transcription, no data uploaded',
+    srtStartBtn: 'Start Transcription',
+    srtSelectLang: 'Please select the spoken language first',
+    srtDecoding: 'Extracting audio track...',
+    srtLoadingModel: 'Downloading model (first time only)...',
+    srtTranscribing: 'Transcribing...',
+    srtTranscribingWasm: 'Transcribing (no WebGPU detected, this may be slow)...',
+    srtDone: 'Transcription Complete',
+    srtDlSrt: 'Download .srt',
+    srtDlTxt: 'Download .txt',
+    srtCopy: 'Copy text',
+    srtCopied: 'Copied to clipboard',
+    srtErrDecode: 'Could not decode the audio track. Please convert to MP4 / MP3 / WAV and retry',
+    srtErr: (m) => 'Transcription error: ' + m,
+    srtToastDone: (n) => `Done! ${n} subtitle segments`,
   },
   pt: {
     title: 'Divisor Automático de MP3 / WAV',
@@ -954,17 +1169,284 @@ const I18N = {
     imgChipQuality: (q) => `Qualidade: ${q}`,
     imgErrLoad: 'Falha ao carregar imagem',
     imgDone: (sizeBefore, sizeAfter) => `Pronto: ${sizeBefore} → ${sizeAfter}`,
+    modSrt: 'Vídeo → Legendas',
+    srtTitle: 'Vídeo / Áudio para Legendas SRT',
+    srtSubtitle: 'Envie um vídeo ou áudio — a transcrição por IA roda no seu navegador e gera legendas SRT com timestamps. 100% local, sem upload.',
+    srtLang: 'Idioma falado',
+    srtLangPh: 'Selecione o idioma',
+    srtLangAuto: 'Detecção automática',
+    srtModel: 'Modelo',
+    srtModelSmall: 'Small · mais preciso (recomendado)',
+    srtModelBase: 'Base · mais rápido',
+    srtMirror: 'Usar espelho da China para baixar o modelo (hf-mirror.com)',
+    srtNote: 'No primeiro uso o modelo é baixado (Base ~80MB / Small ~250MB); depois fica em cache no navegador e funciona offline.',
+    srtDzMain: 'Arraste o vídeo ou áudio aqui, ou clique para selecionar',
+    srtDzSub: 'Suporta MP4 / MOV / M4A / MP3 / WAV · Transcrição 100% local, sem envio de dados',
+    srtStartBtn: 'Iniciar Transcrição',
+    srtSelectLang: 'Selecione primeiro o idioma falado',
+    srtDecoding: 'Extraindo faixa de áudio...',
+    srtLoadingModel: 'Baixando modelo (apenas na primeira vez)...',
+    srtTranscribing: 'Transcrevendo...',
+    srtTranscribingWasm: 'Transcrevendo (sem WebGPU, pode ser lento)...',
+    srtDone: 'Transcrição Concluída',
+    srtDlSrt: 'Baixar .srt',
+    srtDlTxt: 'Baixar .txt',
+    srtCopy: 'Copiar texto',
+    srtCopied: 'Copiado para a área de transferência',
+    srtErrDecode: 'Não foi possível decodificar a faixa de áudio. Converta para MP4 / MP3 / WAV e tente novamente',
+    srtErr: (m) => 'Erro na transcrição: ' + m,
+    srtToastDone: (n) => `Concluído! ${n} legendas geradas`,
+  },
+  th: {
+    title: 'ตัดไฟล์เสียง MP3 / WAV อัตโนมัติ',
+    subtitle: 'ตัดไฟล์บันทึกเสียงยาวเป็นช่วงตามความยาวที่กำหนด โดยคงคุณภาพเสียงต้นฉบับ',
+    maxdur: 'ความยาวสูงสุดต่อช่วง',
+    min: 'นาที', sec: 'วินาที',
+    format: 'รูปแบบไฟล์ output',
+    fmtSame: 'เหมือนไฟล์ต้นฉบับ (แนะนำ)',
+    naming: 'คำนำหน้าชื่อไฟล์',
+    namePlaceholder: 'เช่น: Dimas (เว้นว่างเพื่อใช้ชื่อเดิม)',
+    previewLabel: 'ตัวอย่าง: ',
+    dzMain: 'ลากไฟล์เสียงมาวางที่นี่ หรือคลิกเพื่อเลือก',
+    dzSub: 'รองรับ MP3 / WAV · ประมวลผลหลายไฟล์ · ทำงานในเครื่อง ไม่อัปโหลดข้อมูล',
+    startBtn: 'เริ่มตัดไฟล์',
+    processing: 'กำลังประมวลผล...',
+    decoding: 'กำลังถอดรหัส: ',
+    segment: 'ช่วงที่',
+    done: 'ตัดไฟล์เสร็จแล้ว',
+    dlAll: 'ดาวน์โหลดทั้งหมด',
+    dl: 'ดาวน์โหลด',
+    toastDone: (n) => `เสร็จแล้ว! ได้ ${n} ไฟล์`,
+    toastErr: (m) => 'เกิดข้อผิดพลาด: ' + m,
+    loadingEnc: 'กำลังโหลดตัวเข้ารหัส...',
+    loadingMp3Enc: 'กำลังโหลดตัวเข้ารหัส MP3...',
+    completed: 'เสร็จสิ้น ✓',
+    modAudio: 'ตัดไฟล์เสียง',
+    modImage: 'จัดการรูปภาพ',
+    imgTitle: 'จัดการรูปภาพอัจฉริยะ',
+    imgSubtitle: 'พิมพ์บอกสิ่งที่ต้องการ ระบบจะครอป / ย่อ / แปลงไฟล์ / บีบอัดให้อัตโนมัติ หรือปรับเองก็ได้ ทำงานในเครื่อง ไม่อัปโหลดไฟล์',
+    imgInstrLabel: 'อธิบายสิ่งที่คุณต้องการ',
+    imgInstrPlaceholder: 'เช่น: ครอปเป็นสี่เหลี่ยมจัตุรัส 1000x1000 บันทึกเป็น JPG',
+    imgInstrHint: 'รองรับ: สี่เหลี่ยมจัตุรัส / 1:1 / 4:5 / 16:9 / 9:16 · ขนาดพิกเซล เช่น 1000px · JPG / PNG / WebP · คุณภาพสูง / บีบอัด',
+    imgAspect: 'สัดส่วนการครอป',
+    imgAspectOriginal: 'ต้นฉบับ',
+    imgFormat: 'รูปแบบไฟล์',
+    imgMaxDim: 'ด้านยาวสุด (px)',
+    imgQuality: 'คุณภาพ',
+    imgDzMain: 'ลากรูปมาวางที่นี่ หรือคลิกเพื่อเลือก',
+    imgDzSub: 'รองรับ JPG / PNG / WebP / HEIC · ทำงานในเครื่อง ไม่อัปโหลดข้อมูล',
+    imgBefore: 'ต้นฉบับ',
+    imgAfter: 'หลังประมวลผล',
+    imgReprocess: 'ประมวลผลใหม่',
+    imgDownload: 'ดาวน์โหลด',
+    imgChipFormat: (f) => `รูปแบบ: ${f}`,
+    imgChipAspect: (a) => `สัดส่วน: ${a}`,
+    imgChipDim: (d) => `สูงสุด: ${d}px`,
+    imgChipQuality: (q) => `คุณภาพ: ${q}`,
+    imgErrLoad: 'โหลดรูปไม่สำเร็จ',
+    imgDone: (sizeBefore, sizeAfter) => `เสร็จแล้ว: ${sizeBefore} → ${sizeAfter}`,
+    modSrt: 'วิดีโอ → ซับไตเติล',
+    srtTitle: 'แปลงวิดีโอ / เสียงเป็นซับไตเติล SRT',
+    srtSubtitle: 'อัปโหลดวิดีโอหรือไฟล์เสียง AI จะถอดเสียงในเบราว์เซอร์และสร้างซับไตเติล SRT พร้อม timestamp ทำงานในเครื่อง ไม่อัปโหลดไฟล์',
+    srtLang: 'ภาษาที่พูด',
+    srtLangPh: 'เลือกภาษา',
+    srtLangAuto: 'ตรวจจับอัตโนมัติ',
+    srtModel: 'โมเดล',
+    srtModelSmall: 'Small · แม่นยำกว่า (แนะนำ)',
+    srtModelBase: 'Base · เร็วกว่า',
+    srtMirror: 'ใช้ mirror จีนสำหรับดาวน์โหลดโมเดล (hf-mirror.com)',
+    srtNote: 'ครั้งแรกต้องดาวน์โหลดโมเดล (Base ~80MB / Small ~250MB) หลังจากนั้นจะแคชในเบราว์เซอร์และใช้แบบออฟไลน์ได้',
+    srtDzMain: 'ลากวิดีโอหรือไฟล์เสียงมาวางที่นี่ หรือคลิกเพื่อเลือก',
+    srtDzSub: 'รองรับ MP4 / MOV / M4A / MP3 / WAV · ถอดเสียงในเครื่อง ไม่อัปโหลดข้อมูล',
+    srtStartBtn: 'เริ่มถอดเสียง',
+    srtSelectLang: 'กรุณาเลือกภาษาที่พูดก่อน',
+    srtDecoding: 'กำลังแยกแทร็กเสียง...',
+    srtLoadingModel: 'กำลังดาวน์โหลดโมเดล (ครั้งแรกเท่านั้น)...',
+    srtTranscribing: 'กำลังถอดเสียง...',
+    srtTranscribingWasm: 'กำลังถอดเสียง (ไม่พบ WebGPU อาจช้า)...',
+    srtDone: 'ถอดเสียงเสร็จแล้ว',
+    srtDlSrt: 'ดาวน์โหลด .srt',
+    srtDlTxt: 'ดาวน์โหลด .txt',
+    srtCopy: 'คัดลอกข้อความ',
+    srtCopied: 'คัดลอกแล้ว',
+    srtErrDecode: 'ไม่สามารถถอดรหัสแทร็กเสียงได้ กรุณาแปลงเป็น MP4 / MP3 / WAV แล้วลองใหม่',
+    srtErr: (m) => 'เกิดข้อผิดพลาด: ' + m,
+    srtToastDone: (n) => `เสร็จแล้ว! ได้ซับไตเติล ${n} บรรทัด`,
+  },
+  id: {
+    title: 'Pemotong Audio MP3 / WAV Otomatis',
+    subtitle: 'Potong rekaman panjang menjadi segmen dengan durasi tertentu, kualitas audio asli tetap terjaga',
+    maxdur: 'Durasi maks. per segmen',
+    min: 'mnt', sec: 'dtk',
+    format: 'Format output',
+    fmtSame: 'Sama dengan file asli (disarankan)',
+    naming: 'Awalan nama kustom',
+    namePlaceholder: 'Mis.: Dimas (kosongkan untuk pakai nama asli)',
+    previewLabel: 'Pratinjau: ',
+    dzMain: 'Seret file audio ke sini, atau klik untuk memilih',
+    dzSub: 'Mendukung MP3 / WAV · Proses banyak file · Sepenuhnya lokal, tanpa unggah data',
+    startBtn: 'Mulai Potong',
+    processing: 'Memproses...',
+    decoding: 'Mendekode: ',
+    segment: 'Segmen',
+    done: 'Pemotongan Selesai',
+    dlAll: 'Unduh Semua',
+    dl: 'Unduh',
+    toastDone: (n) => `Selesai! ${n} segmen dibuat`,
+    toastErr: (m) => 'Terjadi kesalahan: ' + m,
+    loadingEnc: 'Memuat encoder...',
+    loadingMp3Enc: 'Memuat encoder MP3...',
+    completed: 'Selesai ✓',
+    modAudio: 'Pemotong Audio',
+    modImage: 'Pengolah Gambar',
+    imgTitle: 'Pengolah Gambar Pintar',
+    imgSubtitle: 'Jelaskan keinginan Anda — otomatis crop / ubah ukuran / konversi / kompres. Atau atur manual. Sepenuhnya lokal, tanpa unggah.',
+    imgInstrLabel: 'Jelaskan yang Anda inginkan',
+    imgInstrPlaceholder: 'Mis.: crop persegi, 1000x1000, ekspor JPG',
+    imgInstrHint: 'Mengenali: persegi / 1:1 / 4:5 / 16:9 / 9:16 · dimensi piksel spt 1000px · format JPG / PNG / WebP · kualitas tinggi / kompres',
+    imgAspect: 'Rasio crop',
+    imgAspectOriginal: 'Asli',
+    imgFormat: 'Format output',
+    imgMaxDim: 'Dimensi maks. (px)',
+    imgQuality: 'Kualitas',
+    imgDzMain: 'Seret gambar ke sini, atau klik untuk memilih',
+    imgDzSub: 'Mendukung JPG / PNG / WebP / HEIC · Sepenuhnya lokal, tanpa unggah data',
+    imgBefore: 'Asli',
+    imgAfter: 'Hasil',
+    imgReprocess: 'Proses Ulang',
+    imgDownload: 'Unduh',
+    imgChipFormat: (f) => `Format: ${f}`,
+    imgChipAspect: (a) => `Rasio: ${a}`,
+    imgChipDim: (d) => `Maks: ${d}px`,
+    imgChipQuality: (q) => `Kualitas: ${q}`,
+    imgErrLoad: 'Gagal memuat gambar',
+    imgDone: (sizeBefore, sizeAfter) => `Selesai: ${sizeBefore} → ${sizeAfter}`,
+    modSrt: 'Video → Subtitle',
+    srtTitle: 'Video / Audio ke Subtitle SRT',
+    srtSubtitle: 'Unggah video atau audio — transkripsi AI berjalan di browser Anda dan menghasilkan subtitle SRT dengan timestamp. Sepenuhnya lokal, tanpa unggah.',
+    srtLang: 'Bahasa yang diucapkan',
+    srtLangPh: 'Pilih bahasa',
+    srtLangAuto: 'Deteksi otomatis',
+    srtModel: 'Model',
+    srtModelSmall: 'Small · lebih akurat (disarankan)',
+    srtModelBase: 'Base · lebih cepat',
+    srtMirror: 'Gunakan mirror Tiongkok untuk unduh model (hf-mirror.com)',
+    srtNote: 'Penggunaan pertama mengunduh model (Base ~80MB / Small ~250MB); setelah itu di-cache di browser dan bisa offline.',
+    srtDzMain: 'Seret video atau audio ke sini, atau klik untuk memilih',
+    srtDzSub: 'Mendukung MP4 / MOV / M4A / MP3 / WAV · Transkripsi lokal, tanpa unggah data',
+    srtStartBtn: 'Mulai Transkripsi',
+    srtSelectLang: 'Pilih bahasa yang diucapkan terlebih dahulu',
+    srtDecoding: 'Mengekstrak trek audio...',
+    srtLoadingModel: 'Mengunduh model (hanya pertama kali)...',
+    srtTranscribing: 'Mentranskripsi...',
+    srtTranscribingWasm: 'Mentranskripsi (WebGPU tidak terdeteksi, mungkin lambat)...',
+    srtDone: 'Transkripsi Selesai',
+    srtDlSrt: 'Unduh .srt',
+    srtDlTxt: 'Unduh .txt',
+    srtCopy: 'Salin teks',
+    srtCopied: 'Disalin ke clipboard',
+    srtErrDecode: 'Tidak dapat mendekode trek audio. Konversi ke MP4 / MP3 / WAV lalu coba lagi',
+    srtErr: (m) => 'Kesalahan transkripsi: ' + m,
+    srtToastDone: (n) => `Selesai! ${n} baris subtitle`,
+  },
+  ms: {
+    title: 'Pemotong Audio MP3 / WAV Automatik',
+    subtitle: 'Potong rakaman panjang kepada segmen mengikut tempoh yang ditetapkan, kualiti audio asal dikekalkan',
+    maxdur: 'Tempoh maks. setiap segmen',
+    min: 'min', sec: 'saat',
+    format: 'Format output',
+    fmtSame: 'Sama seperti fail asal (disyorkan)',
+    naming: 'Awalan nama tersuai',
+    namePlaceholder: 'Cth.: Dimas (biarkan kosong untuk guna nama asal)',
+    previewLabel: 'Pratonton: ',
+    dzMain: 'Seret fail audio ke sini, atau klik untuk pilih',
+    dzSub: 'Menyokong MP3 / WAV · Pemprosesan berkelompok · Sepenuhnya setempat, tiada data dimuat naik',
+    startBtn: 'Mula Potong',
+    processing: 'Memproses...',
+    decoding: 'Menyahkod: ',
+    segment: 'Segmen',
+    done: 'Pemotongan Selesai',
+    dlAll: 'Muat Turun Semua',
+    dl: 'Muat Turun',
+    toastDone: (n) => `Selesai! ${n} segmen dihasilkan`,
+    toastErr: (m) => 'Ralat: ' + m,
+    loadingEnc: 'Memuatkan pengekod...',
+    loadingMp3Enc: 'Memuatkan pengekod MP3...',
+    completed: 'Selesai ✓',
+    modAudio: 'Pemotong Audio',
+    modImage: 'Pemproses Imej',
+    imgTitle: 'Pemproses Imej Pintar',
+    imgSubtitle: 'Terangkan kehendak anda — auto pangkas / saiz semula / tukar format / mampat. Atau laras manual. Sepenuhnya setempat, tiada muat naik.',
+    imgInstrLabel: 'Terangkan apa yang anda mahu',
+    imgInstrPlaceholder: 'Cth.: pangkas segi empat sama, 1000x1000, eksport JPG',
+    imgInstrHint: 'Mengenali: segi empat sama / 1:1 / 4:5 / 16:9 / 9:16 · dimensi piksel spt 1000px · format JPG / PNG / WebP · kualiti tinggi / mampat',
+    imgAspect: 'Nisbah pangkas',
+    imgAspectOriginal: 'Asal',
+    imgFormat: 'Format output',
+    imgMaxDim: 'Dimensi maks. (px)',
+    imgQuality: 'Kualiti',
+    imgDzMain: 'Seret imej ke sini, atau klik untuk pilih',
+    imgDzSub: 'Menyokong JPG / PNG / WebP / HEIC · Sepenuhnya setempat, tiada data dimuat naik',
+    imgBefore: 'Asal',
+    imgAfter: 'Hasil',
+    imgReprocess: 'Proses Semula',
+    imgDownload: 'Muat Turun',
+    imgChipFormat: (f) => `Format: ${f}`,
+    imgChipAspect: (a) => `Nisbah: ${a}`,
+    imgChipDim: (d) => `Maks: ${d}px`,
+    imgChipQuality: (q) => `Kualiti: ${q}`,
+    imgErrLoad: 'Gagal memuatkan imej',
+    imgDone: (sizeBefore, sizeAfter) => `Selesai: ${sizeBefore} → ${sizeAfter}`,
+    modSrt: 'Video → Sari Kata',
+    srtTitle: 'Video / Audio kepada Sari Kata SRT',
+    srtSubtitle: 'Muat naik video atau audio — transkripsi AI berjalan dalam pelayar anda dan menjana sari kata SRT dengan cap masa. Sepenuhnya setempat, tiada muat naik.',
+    srtLang: 'Bahasa pertuturan',
+    srtLangPh: 'Pilih bahasa',
+    srtLangAuto: 'Kesan automatik',
+    srtModel: 'Model',
+    srtModelSmall: 'Small · lebih tepat (disyorkan)',
+    srtModelBase: 'Base · lebih pantas',
+    srtMirror: 'Guna cermin China untuk muat turun model (hf-mirror.com)',
+    srtNote: 'Penggunaan pertama akan memuat turun model (Base ~80MB / Small ~250MB); selepas itu dicache dalam pelayar dan boleh digunakan luar talian.',
+    srtDzMain: 'Seret video atau audio ke sini, atau klik untuk pilih',
+    srtDzSub: 'Menyokong MP4 / MOV / M4A / MP3 / WAV · Transkripsi setempat, tiada data dimuat naik',
+    srtStartBtn: 'Mula Transkripsi',
+    srtSelectLang: 'Sila pilih bahasa pertuturan dahulu',
+    srtDecoding: 'Mengekstrak trek audio...',
+    srtLoadingModel: 'Memuat turun model (kali pertama sahaja)...',
+    srtTranscribing: 'Mentranskripsi...',
+    srtTranscribingWasm: 'Mentranskripsi (tiada WebGPU, mungkin perlahan)...',
+    srtDone: 'Transkripsi Selesai',
+    srtDlSrt: 'Muat Turun .srt',
+    srtDlTxt: 'Muat Turun .txt',
+    srtCopy: 'Salin teks',
+    srtCopied: 'Disalin ke papan keratan',
+    srtErrDecode: 'Tidak dapat menyahkod trek audio. Tukar kepada MP4 / MP3 / WAV dan cuba lagi',
+    srtErr: (m) => 'Ralat transkripsi: ' + m,
+    srtToastDone: (n) => `Selesai! ${n} baris sari kata`,
   }
 };
 
 let currentLang = 'zh';
 
+const LANG_NAMES = { zh: '中文', en: 'English', th: 'ไทย', id: 'Bahasa Indonesia', ms: 'Bahasa Melayu', pt: 'Português' };
+
 function setLang(lang) {
   currentLang = lang;
-  document.querySelectorAll('.lang-btn').forEach(b => b.classList.remove('active'));
-  document.querySelector(`.lang-btn[onclick="setLang('${lang}')"]`).classList.add('active');
+  document.getElementById('langDdLabel').textContent = LANG_NAMES[lang];
+  document.querySelectorAll('.lang-dd-item').forEach(b => b.classList.toggle('active', b.dataset.lang === lang));
+  document.getElementById('langDdMenu').classList.remove('open');
   applyLang();
 }
+
+document.getElementById('langDdBtn').addEventListener('click', (e) => {
+  e.stopPropagation();
+  document.getElementById('langDdMenu').classList.toggle('open');
+});
+document.querySelectorAll('.lang-dd-item').forEach(b => {
+  b.addEventListener('click', () => setLang(b.dataset.lang));
+});
+document.addEventListener('click', () => document.getElementById('langDdMenu').classList.remove('open'));
 
 function t(key) { return I18N[currentLang][key]; }
 
@@ -973,6 +1455,25 @@ function applyLang() {
   // Module tabs
   document.getElementById('t-mod-audio').textContent = L.modAudio;
   document.getElementById('t-mod-image').textContent = L.modImage;
+  document.getElementById('t-mod-srt').textContent = L.modSrt;
+  // SRT module labels
+  document.getElementById('t-srt-title').textContent = L.srtTitle;
+  document.getElementById('t-srt-subtitle').textContent = L.srtSubtitle;
+  document.getElementById('t-srt-lang').textContent = L.srtLang;
+  document.getElementById('t-srt-lang-ph').textContent = L.srtLangPh;
+  document.getElementById('t-srt-lang-auto').textContent = L.srtLangAuto;
+  document.getElementById('t-srt-model').textContent = L.srtModel;
+  document.getElementById('t-srt-model-small').textContent = L.srtModelSmall;
+  document.getElementById('t-srt-model-base').textContent = L.srtModelBase;
+  document.getElementById('t-srt-mirror').textContent = L.srtMirror;
+  document.getElementById('t-srt-note').textContent = L.srtNote;
+  document.getElementById('t-srt-dz-main').textContent = L.srtDzMain;
+  document.getElementById('t-srt-dz-sub').textContent = L.srtDzSub;
+  document.getElementById('t-srt-startbtn').textContent = L.srtStartBtn;
+  document.getElementById('t-srt-done').textContent = L.srtDone;
+  document.getElementById('t-srt-dlsrt').textContent = L.srtDlSrt;
+  document.getElementById('t-srt-dltxt').textContent = L.srtDlTxt;
+  document.getElementById('t-srt-copy').textContent = L.srtCopy;
   // Image module labels
   document.getElementById('t-img-title').textContent = L.imgTitle;
   document.getElementById('t-img-subtitle').textContent = L.imgSubtitle;
@@ -1413,6 +1914,7 @@ function setModule(mod) {
   });
   document.getElementById('module-audio').classList.toggle('hidden', mod !== 'audio');
   document.getElementById('module-image').classList.toggle('hidden', mod !== 'image');
+  document.getElementById('module-srt').classList.toggle('hidden', mod !== 'srt');
 }
 
 // ===================== Image module =====================
@@ -1644,6 +2146,314 @@ imgDownloadBtn.addEventListener('click', () => {
   a.download = `${baseName}_processed.${processedExt}`;
   a.click();
   URL.revokeObjectURL(url);
+});
+
+// ===================== SRT module =====================
+const srtDropzone = document.getElementById('srtDropzone');
+const srtInput = document.getElementById('srtInput');
+const srtFileList = document.getElementById('srtFileList');
+const srtProcessBtn = document.getElementById('srtProcessBtn');
+const srtLangSel = document.getElementById('srtLang');
+const srtModelSel = document.getElementById('srtModel');
+const srtMirrorChk = document.getElementById('srtMirror');
+const srtProgressSection = document.getElementById('srtProgressSection');
+const srtProgressLabel = document.getElementById('srtProgressLabel');
+const srtProgressPct = document.getElementById('srtProgressPct');
+const srtProgressFill = document.getElementById('srtProgressFill');
+const srtProgressStatus = document.getElementById('srtProgressStatus');
+const srtResults = document.getElementById('srtResults');
+const srtSegList = document.getElementById('srtSegList');
+
+let srtFile = null;
+let srtDuration = 0;
+let srtChunks = [];
+let srtWorker = null;
+let srtBusy = false;
+
+srtDropzone.addEventListener('dragover', e => { e.preventDefault(); srtDropzone.classList.add('dragover'); });
+srtDropzone.addEventListener('dragleave', () => srtDropzone.classList.remove('dragover'));
+srtDropzone.addEventListener('drop', e => {
+  e.preventDefault();
+  srtDropzone.classList.remove('dragover');
+  if (e.dataTransfer.files[0]) handleSrtFile(e.dataTransfer.files[0]);
+});
+srtInput.addEventListener('change', e => { if (e.target.files[0]) handleSrtFile(e.target.files[0]); });
+
+async function handleSrtFile(file) {
+  srtFile = file;
+  srtDuration = 0;
+  try { srtDuration = await getAudioDuration(file); } catch(e) {}
+  const durStr = srtDuration > 0 ? formatTime(srtDuration) : '--:--';
+  const ext = (file.name.split('.').pop() || '').toUpperCase();
+  srtFileList.innerHTML = `
+    <div class="file-item">
+      <div class="fi-icon">🎬</div>
+      <div class="fi-info">
+        <div class="fi-name">${file.name}</div>
+        <div class="fi-meta">
+          <span>${formatSize(file.size)}</span>
+          <span>${durStr}</span>
+          <span class="audio-info-badge">${ext}</span>
+        </div>
+      </div>
+      <button class="fi-remove" onclick="removeSrtFile()">✕</button>
+    </div>`;
+  srtProcessBtn.disabled = false;
+}
+
+function removeSrtFile() {
+  srtFile = null;
+  srtFileList.innerHTML = '';
+  srtProcessBtn.disabled = true;
+}
+
+function srtSetProgress(label, pct, status) {
+  srtProgressSection.classList.add('active');
+  srtProgressLabel.textContent = label;
+  srtProgressPct.textContent = pct + '%';
+  srtProgressFill.style.width = pct + '%';
+  if (status !== undefined) srtProgressStatus.textContent = status;
+}
+
+// Decode any audio/video file to 16kHz mono Float32Array (Whisper input)
+async function extractAudio16k(file) {
+  const arrayBuf = await file.arrayBuffer();
+  const ctx = new (window.AudioContext || window.webkitAudioContext)();
+  let decoded;
+  try {
+    decoded = await ctx.decodeAudioData(arrayBuf);
+  } finally {
+    ctx.close();
+  }
+  const targetRate = 16000;
+  const length = Math.ceil(decoded.duration * targetRate);
+  const offline = new OfflineAudioContext(1, length, targetRate);
+  const src = offline.createBufferSource();
+  src.buffer = decoded;
+  src.connect(offline.destination);
+  src.start();
+  const rendered = await offline.startRendering();
+  return { audio: rendered.getChannelData(0), duration: decoded.duration };
+}
+
+// Worker source: loads transformers.js from CDN, runs Whisper, posts progress back.
+// Kept free of backticks/template-interpolation because it lives inside a string.
+const SRT_WORKER_SRC = [
+"let pipe = null, loadedKey = null, activeDevice = null;",
+"self.onmessage = async (e) => {",
+"  const { audio, modelId, language, duration, remoteHost } = e.data;",
+"  try {",
+"    const T = await import('https://cdn.jsdelivr.net/npm/@huggingface/transformers@3.7.3');",
+"    if (remoteHost) T.env.remoteHost = remoteHost;",
+"    const key = modelId + '|' + (remoteHost || '');",
+"    if (!pipe || loadedKey !== key) {",
+"      if (pipe) { try { await pipe.dispose(); } catch(_) {} pipe = null; }",
+"      const progressCb = (p) => {",
+"        if (p.status === 'progress' || p.status === 'initiate' || p.status === 'done') {",
+"          self.postMessage({ type: 'model', file: p.file, loaded: p.loaded || 0, total: p.total || 0, status: p.status });",
+"        }",
+"      };",
+"      let hasGpu = false;",
+"      try { hasGpu = !!(self.navigator && self.navigator.gpu && await self.navigator.gpu.requestAdapter()); } catch(_) {}",
+"      const attempts = [];",
+"      if (hasGpu) {",
+"        // fp32 encoder + q4 decoder is the verified-correct WebGPU combo; fp16/q8 produce garbage on some GPUs",
+"        attempts.push({ device: 'webgpu', dtype: { encoder_model: 'fp32', decoder_model_merged: 'q4' } });",
+"      }",
+"      attempts.push({ device: 'wasm', dtype: 'q8' });",
+"      let lastErr = null;",
+"      for (const a of attempts) {",
+"        try {",
+"          pipe = await T.pipeline('automatic-speech-recognition', modelId, { device: a.device, dtype: a.dtype, progress_callback: progressCb });",
+"          activeDevice = a.device;",
+"          lastErr = null;",
+"          break;",
+"        } catch (err) { lastErr = err; pipe = null; }",
+"      }",
+"      if (!pipe) throw lastErr || new Error('model load failed');",
+"      loadedKey = key;",
+"    }",
+"    self.postMessage({ type: 'ready', device: activeDevice });",
+"    const chunkLen = 30, stride = 5;",
+"    const effective = chunkLen - 2 * stride;",
+"    const totalChunks = Math.max(1, Math.ceil(duration / effective));",
+"    let done = 0;",
+"    const opts = {",
+"      task: 'transcribe',",
+"      return_timestamps: true,",
+"      chunk_length_s: chunkLen,",
+"      stride_length_s: stride,",
+"      chunk_callback: () => {",
+"        done++;",
+"        self.postMessage({ type: 'progress', pct: Math.min(99, Math.round(done / totalChunks * 100)) });",
+"      },",
+"    };",
+"    if (language) opts.language = language;",
+"    const out = await pipe(audio, opts);",
+"    self.postMessage({ type: 'result', chunks: out.chunks || [], text: out.text || '' });",
+"  } catch (err) {",
+"    self.postMessage({ type: 'error', message: (err && err.message) ? err.message : String(err) });",
+"  }",
+"};",
+].join('\n');
+
+function getSrtWorker() {
+  if (srtWorker) return srtWorker;
+  const blob = new Blob([SRT_WORKER_SRC], { type: 'text/javascript' });
+  srtWorker = new Worker(URL.createObjectURL(blob), { type: 'module' });
+  return srtWorker;
+}
+
+srtProcessBtn.addEventListener('click', async () => {
+  if (!srtFile || srtBusy) return;
+  const L = I18N[currentLang];
+  const langVal = srtLangSel.value;
+  if (!langVal) { showToast(L.srtSelectLang); return; }
+  srtBusy = true;
+  srtProcessBtn.disabled = true;
+  srtResults.classList.remove('active');
+  srtSegList.innerHTML = '';
+  srtChunks = [];
+
+  try {
+    srtSetProgress(L.srtDecoding, 0, srtFile.name);
+    let extracted;
+    try {
+      extracted = await extractAudio16k(srtFile);
+    } catch (e) {
+      throw new Error(L.srtErrDecode);
+    }
+    srtDuration = extracted.duration;
+
+    const worker = getSrtWorker();
+    const modelFiles = {}; // file -> {loaded, total}
+    let device = null;
+
+    const result = await new Promise((resolve, reject) => {
+      worker.onmessage = (e) => {
+        const m = e.data;
+        if (m.type === 'model') {
+          if (m.file) {
+            modelFiles[m.file] = { loaded: m.loaded, total: m.total };
+            let loaded = 0, total = 0;
+            for (const k in modelFiles) { loaded += modelFiles[k].loaded; total += modelFiles[k].total; }
+            const pct = total > 0 ? Math.min(99, Math.round(loaded / total * 100)) : 0;
+            srtSetProgress(I18N[currentLang].srtLoadingModel, pct, formatSize(loaded) + ' / ' + (total > 0 ? formatSize(total) : '...'));
+          }
+        } else if (m.type === 'ready') {
+          device = m.device;
+          const label = device === 'wasm' ? I18N[currentLang].srtTranscribingWasm : I18N[currentLang].srtTranscribing;
+          srtSetProgress(label, 0, '');
+        } else if (m.type === 'progress') {
+          const label = device === 'wasm' ? I18N[currentLang].srtTranscribingWasm : I18N[currentLang].srtTranscribing;
+          srtSetProgress(label, m.pct, '');
+        } else if (m.type === 'result') {
+          resolve(m);
+        } else if (m.type === 'error') {
+          reject(new Error(m.message));
+        }
+      };
+      worker.onerror = (err) => reject(new Error(err.message || 'worker error'));
+      worker.postMessage({
+        audio: extracted.audio,
+        modelId: srtModelSel.value,
+        language: langVal === 'auto' ? null : langVal,
+        duration: extracted.duration,
+        remoteHost: srtMirrorChk.checked ? 'https://hf-mirror.com' : null,
+      }, [extracted.audio.buffer]);
+    });
+
+    srtChunks = normalizeSrtChunks(result.chunks, srtDuration, result.text);
+    srtSetProgress(I18N[currentLang].completed, 100, '');
+    renderSrtResults();
+    showToast(I18N[currentLang].srtToastDone(srtChunks.length));
+  } catch (e) {
+    console.error(e);
+    showToast(I18N[currentLang].srtErr(e.message));
+    srtProgressSection.classList.remove('active');
+  } finally {
+    srtBusy = false;
+    srtProcessBtn.disabled = !srtFile;
+  }
+});
+
+function normalizeSrtChunks(chunks, totalDur, fallbackText) {
+  const out = [];
+  if (chunks && chunks.length) {
+    for (const c of chunks) {
+      const text = (c.text || '').trim();
+      if (!text) continue;
+      let start = c.timestamp && c.timestamp[0] != null ? c.timestamp[0] : (out.length ? out[out.length-1].end : 0);
+      let end = c.timestamp && c.timestamp[1] != null ? c.timestamp[1] : null;
+      if (end == null || end <= start) end = totalDur && totalDur > start ? Math.min(start + 5, totalDur) : start + 5;
+      out.push({ start, end, text });
+    }
+  }
+  if (!out.length && fallbackText && fallbackText.trim()) {
+    out.push({ start: 0, end: totalDur || 5, text: fallbackText.trim() });
+  }
+  return out;
+}
+
+function secToSrtTime(t) {
+  if (t == null || isNaN(t) || t < 0) t = 0;
+  const ms = Math.round(t * 1000);
+  const h = Math.floor(ms / 3600000);
+  const m = Math.floor((ms % 3600000) / 60000);
+  const s = Math.floor((ms % 60000) / 1000);
+  const mss = ms % 1000;
+  const p = (n, w) => String(n).padStart(w, '0');
+  return p(h,2) + ':' + p(m,2) + ':' + p(s,2) + ',' + p(mss,3);
+}
+
+function buildSrt() {
+  return srtChunks.map((c, i) =>
+    (i + 1) + '\n' + secToSrtTime(c.start) + ' --> ' + secToSrtTime(c.end) + '\n' + c.text + '\n'
+  ).join('\n');
+}
+
+function buildTxt() {
+  return srtChunks.map(c => c.text).join('\n');
+}
+
+function renderSrtResults() {
+  srtSegList.innerHTML = '';
+  srtChunks.forEach(c => {
+    const div = document.createElement('div');
+    div.className = 'srt-seg';
+    const time = document.createElement('div');
+    time.className = 'srt-seg-time';
+    time.textContent = secToSrtTime(c.start).slice(0, 8) + ' → ' + secToSrtTime(c.end).slice(0, 8);
+    const text = document.createElement('div');
+    text.className = 'srt-seg-text';
+    text.textContent = c.text;
+    div.appendChild(time);
+    div.appendChild(text);
+    srtSegList.appendChild(div);
+  });
+  srtResults.classList.add('active');
+}
+
+function downloadSrtBlob(content, ext) {
+  if (!srtChunks.length) return;
+  const baseName = srtFile ? srtFile.name.replace(/\.[^.]+$/, '') : 'subtitles';
+  const blob = new Blob(['\uFEFF' + content], { type: 'text/plain;charset=utf-8' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url; a.download = baseName + '.' + ext; a.click();
+  URL.revokeObjectURL(url);
+}
+
+document.getElementById('srtDlSrtBtn').addEventListener('click', () => downloadSrtBlob(buildSrt(), 'srt'));
+document.getElementById('srtDlTxtBtn').addEventListener('click', () => downloadSrtBlob(buildTxt(), 'txt'));
+document.getElementById('srtCopyBtn').addEventListener('click', async () => {
+  if (!srtChunks.length) return;
+  try {
+    await navigator.clipboard.writeText(buildTxt());
+    showToast(I18N[currentLang].srtCopied);
+  } catch (e) {
+    showToast(I18N[currentLang].srtErr(e.message));
+  }
 });
 
 // Init
