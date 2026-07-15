@@ -1134,6 +1134,7 @@ const I18N = {
     srtBtnView: '查看结果',
     srtQueuePause: '暂停队列',
     srtQueueResume: '继续队列',
+    srtBtnRetranscribe: '重新转写',
   },
   en: {
     title: 'MP3 / WAV Audio Auto-Splitter',
@@ -1235,6 +1236,7 @@ const I18N = {
     srtBtnView: 'View result',
     srtQueuePause: 'Pause queue',
     srtQueueResume: 'Resume queue',
+    srtBtnRetranscribe: 'Re-transcribe',
   },
   pt: {
     title: 'Divisor Automático de MP3 / WAV',
@@ -1336,6 +1338,7 @@ const I18N = {
     srtBtnView: 'Ver resultado',
     srtQueuePause: 'Pausar fila',
     srtQueueResume: 'Retomar fila',
+    srtBtnRetranscribe: 'Transcrever de novo',
   },
   th: {
     title: 'ตัดไฟล์เสียง MP3 / WAV อัตโนมัติ',
@@ -1437,6 +1440,7 @@ const I18N = {
     srtBtnView: 'ดูผลลัพธ์',
     srtQueuePause: 'พักคิว',
     srtQueueResume: 'ทำคิวต่อ',
+    srtBtnRetranscribe: 'ถอดเสียงใหม่',
   },
   id: {
     title: 'Pemotong Audio MP3 / WAV Otomatis',
@@ -1538,6 +1542,7 @@ const I18N = {
     srtBtnView: 'Lihat hasil',
     srtQueuePause: 'Jeda antrean',
     srtQueueResume: 'Lanjutkan antrean',
+    srtBtnRetranscribe: 'Transkripsi ulang',
   },
   ms: {
     title: 'Pemotong Audio MP3 / WAV Automatik',
@@ -1639,6 +1644,7 @@ const I18N = {
     srtBtnView: 'Lihat hasil',
     srtQueuePause: 'Jeda giliran',
     srtQueueResume: 'Sambung giliran',
+    srtBtnRetranscribe: 'Transkripsi semula',
   }
 };
 
@@ -2443,7 +2449,8 @@ function renderSrtTasks() {
       actions = `<button class="srt-task-btn" data-act="restart">${L.srtBtnRestart}</button>
                  <button class="srt-task-btn" data-act="cancel">${L.srtBtnCancel}</button>`;
     } else if (task.status === 'done') {
-      actions = `<button class="srt-task-btn" data-act="view">${L.srtBtnView}</button>`;
+      actions = `<button class="srt-task-btn" data-act="view">${L.srtBtnView}</button>
+                 <button class="srt-task-btn" data-act="retry">${L.srtBtnRetranscribe}</button>`;
     } else {
       actions = `<button class="srt-task-btn" data-act="retry">${L.srtBtnRetry}</button>
                  <button class="srt-task-btn" data-act="remove">${L.srtBtnRemove}</button>`;
